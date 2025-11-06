@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Plus, X, Eye, Github, ExternalLink, Briefcase, Mail, Linkedin, AlertCircle, Edit2, Trash2, Menu } from 'lucide-react';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api';
+
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -16,7 +18,7 @@ export default function App() {
   
   const [projects, setProjects] = useState([]);
   const [aboutData, setAboutData] = useState({
-    profileImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80",
+    profileImage: "",
     bio1: "Saya adalah seorang Web Developer dengan passion dalam menciptakan aplikasi web yang inovatif dan user-friendly.",
     bio2: "Saya selalu antusias untuk belajar teknologi baru dan mengikuti perkembangan tren di dunia web development.",
     stats: [
