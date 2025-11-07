@@ -274,9 +274,10 @@ export default function App() {
       };
 
       if (editingExp) {
-        await axios.put(`${API_URL}/api/experiences/${editingExp.id}`, expData);
+        await axios.put(`${API_URL}/api/experiences?id=${editingExp.id}`, expData);  // ← UBAH DISINI
         setSaveStatus('✓ Experience updated');
         setEditingExp(null);
+
       } else {
         await axios.post(`${API_URL}/api/experiences`, expData);
         setSaveStatus('✓ Experience added');
@@ -305,18 +306,18 @@ export default function App() {
   };
 
   const handleDeleteExperience = async (id) => {
-    if (window.confirm('Hapus experience ini?')) {
-      try {
-        await axios.delete(`${API_URL}/api/experiences/${id}`);
-        setSaveStatus('✓ Experience deleted');
-        loadAllData();
-        setTimeout(() => setSaveStatus(''), 2000);
-      } catch (err) {
-        console.error('Error deleting experience:', err);
-        alert('Gagal menghapus experience!');
-      }
+  if (window.confirm('Hapus experience ini?')) {
+    try {
+      await axios.delete(`${API_URL}/api/experiences?id=${id}`);  // ← UBAH DISINI
+      setSaveStatus('✓ Experience deleted');
+      loadAllData();
+      setTimeout(() => setSaveStatus(''), 2000);
+    } catch (err) {
+      console.error('Error deleting experience:', err);
+      alert('Gagal menghapus experience!');
     }
-  };
+  }
+};
 
   const handleAddCertification = async () => {
     setError('');
