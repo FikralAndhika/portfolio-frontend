@@ -63,39 +63,45 @@ export default function App() {
   }, []);
 
   const loadAllData = async () => {
-    try {
-      setLoading(true);
-      
-      const projectsRes = await axios.get(`${API_URL}/api/projects`);
-      setProjects(projectsRes.data);
+  try {
+    setLoading(true);
+    
+    const projectsRes = await axios.get(`${API_URL}/api/projects`);
+    console.log('Projects response:', projectsRes.data);
+    console.log('Is array?', Array.isArray(projectsRes.data));
+    setProjects(Array.isArray(projectsRes.data) ? projectsRes.data : []);
 
-      const aboutRes = await axios.get(`${API_URL}/api/about`);
-      if (aboutRes.data) {
-        setAboutData({
-          profileImage: aboutRes.data.profileImage || aboutData.profileImage,
-          bio1: aboutRes.data.bio1 || aboutData.bio1,
-          bio2: aboutRes.data.bio2 || aboutData.bio2,
-          stats: aboutRes.data.stats || aboutData.stats
-        });
-      }
-
-      const skillsRes = await axios.get(`${API_URL}/api/skills`);
-      setSkills(skillsRes.data);
-
-      const expRes = await axios.get(`${API_URL}/api/experiences`);
-      setExperiences(expRes.data);
-
-      const certRes = await axios.get(`${API_URL}/api/certifications`);
-      setCertifications(certRes.data);
-
-      console.log('✅ Data loaded from backend');
-    } catch (err) {
-      console.error('❌ Error loading data:', err);
-      setSaveStatus('❌ Error loading data');
-    } finally {
-      setLoading(false);
+    const aboutRes = await axios.get(`${API_URL}/api/about`);
+    if (aboutRes.data) {
+      setAboutData({
+        profileImage: aboutRes.data.profileImage || aboutData.profileImage,
+        bio1: aboutRes.data.bio1 || aboutData.bio1,
+        bio2: aboutRes.data.bio2 || aboutData.bio2,
+        stats: aboutRes.data.stats || aboutData.stats
+      });
     }
-  };
+
+    const skillsRes = await axios.get(`${API_URL}/api/skills`);
+    setSkills(skillsRes.data || {});
+
+    const expRes = await axios.get(`${API_URL}/api/experiences`);
+    setExperiences(Array.isArray(expRes.data) ? expRes.data : []);
+
+    const certRes = await axios.get(`${API_URL}/api/certifications`);
+    setCertifications(Array.isArray(certRes.data) ? certRes.data : []);
+
+    console.log('✅ Data loaded from backend');
+  } catch (err) {
+    console.error('❌ Error loading data:', err);
+    setProjects([]);
+    setSkills({});
+    setExperiences([]);
+    setCertifications([]);
+    setSaveStatus('❌ Error loading data');
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     const handleScroll = () => {
