@@ -243,20 +243,19 @@ export default function App() {
     setShowProjectForm(true);
   };
 
-  const handleDeleteProject = async (id) => {
-    if (window.confirm('Hapus project ini?')) {
-      try {
-        await axios.delete(`${API_URL}/api/projects?id=${projectId}`);
-        setSaveStatus('✓ Project deleted');
-        loadAllData();
-        setTimeout(() => setSaveStatus(''), 2000);
-      } catch (err) {
-        console.error('Error deleting project:', err);
-        alert('Gagal menghapus project!');
-      }
+const handleDeleteProject = async (id) => {
+  if (window.confirm('Hapus project ini?')) {
+    try {
+      await axios.delete(`${API_URL}/api/projects?id=${id}`);
+      setSaveStatus('✓ Project deleted');
+      loadAllData();
+      setTimeout(() => setSaveStatus(''), 2000);
+    } catch (err) {
+      console.error('Error deleting project:', err);
+      alert('Gagal menghapus project!');
     }
-  };
-
+  }
+};
  const handleAddExperience = async () => {
     setError('');
     if (!expForm.position.trim() || !expForm.company.trim()) {
@@ -400,7 +399,7 @@ export default function App() {
     if (window.confirm('Hapus skill ini?')) {
       try {
         const skill = skills[category][index];
-        await axios.delete(`${API_URL}/api/projects?id=${projectId}`);
+      await axios.delete(`${API_URL}/api/projects?id=${id}`);
         setSaveStatus('✓ Skill deleted');
         loadAllData();
         setTimeout(() => setSaveStatus(''), 2000);
