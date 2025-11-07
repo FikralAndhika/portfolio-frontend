@@ -211,7 +211,7 @@ export default function App() {
       };
 
       if (editingProject) {
-        await axios.put(`${API_URL}/api/projects/${editingProject.id}`, projectData);
+        await axios.put(`${API_URL}/api/projects?id=${editingProject.id}`, projectData);
         setSaveStatus('✓ Project updated');
         setEditingProject(null);
       } else {
@@ -246,7 +246,7 @@ export default function App() {
   const handleDeleteProject = async (id) => {
     if (window.confirm('Hapus project ini?')) {
       try {
-        await axios.delete(`${API_URL}/api/projects/${id}`);
+        await axios.delete(`${API_URL}/api/projects?id=${projectId}`);
         setSaveStatus('✓ Project deleted');
         loadAllData();
         setTimeout(() => setSaveStatus(''), 2000);
@@ -400,7 +400,7 @@ export default function App() {
     if (window.confirm('Hapus skill ini?')) {
       try {
         const skill = skills[category][index];
-        await axios.delete(`${API_URL}/api/skills/${skill.id}`);
+        await axios.delete(`${API_URL}/api/projects?id=${projectId}`);
         setSaveStatus('✓ Skill deleted');
         loadAllData();
         setTimeout(() => setSaveStatus(''), 2000);
