@@ -66,10 +66,10 @@ export default function App() {
     try {
       setLoading(true);
       
-      const projectsRes = await axios.get(`${API_URL}/projects`);
+      const projectsRes = await axios.get(`${API_URL}/api/projects`);
       setProjects(projectsRes.data);
 
-      const aboutRes = await axios.get(`${API_URL}/about`);
+      const aboutRes = await axios.get(`${API_URL}/api/about`);
       if (aboutRes.data) {
         setAboutData({
           profileImage: aboutRes.data.profileImage || aboutData.profileImage,
@@ -79,13 +79,13 @@ export default function App() {
         });
       }
 
-      const skillsRes = await axios.get(`${API_URL}/skills`);
+      const skillsRes = await axios.get(`${API_URL}/api/skills`);
       setSkills(skillsRes.data);
 
-      const expRes = await axios.get(`${API_URL}/experiences`);
+      const expRes = await axios.get(`${API_URL}/api/experiences`);
       setExperiences(expRes.data);
 
-      const certRes = await axios.get(`${API_URL}/certifications`);
+      const certRes = await axios.get(`${API_URL}/api/certifications`);
       setCertifications(certRes.data);
 
       console.log('✅ Data loaded from backend');
@@ -176,7 +176,7 @@ export default function App() {
         imageLength: dataToSend.profileImage?.length || 0
       });
       
-      const response = await axios.put(`${API_URL}/about`, dataToSend);
+      const response = await axios.put(`${API_URL}/api/about`, dataToSend);
       console.log('✅ About saved successfully:', response.data);
       
       setSaveStatus('✓ About & Photo updated successfully!');
@@ -211,11 +211,11 @@ export default function App() {
       };
 
       if (editingProject) {
-        await axios.put(`${API_URL}/projects/${editingProject.id}`, projectData);
+        await axios.put(`${API_URL}/api/projects/${editingProject.id}`, projectData);
         setSaveStatus('✓ Project updated');
         setEditingProject(null);
       } else {
-        await axios.post(`${API_URL}/projects`, projectData);
+        await axios.post(`${API_URL}/api/projects`, projectData);
         setSaveStatus('✓ Project added');
       }
 
@@ -246,7 +246,7 @@ export default function App() {
   const handleDeleteProject = async (id) => {
     if (window.confirm('Hapus project ini?')) {
       try {
-        await axios.delete(`${API_URL}/projects/${id}`);
+        await axios.delete(`${API_URL}/api/projects/${id}`);
         setSaveStatus('✓ Project deleted');
         loadAllData();
         setTimeout(() => setSaveStatus(''), 2000);
@@ -257,7 +257,7 @@ export default function App() {
     }
   };
 
-  const handleAddExperience = async () => {
+ const handleAddExperience = async () => {
     setError('');
     if (!expForm.position.trim() || !expForm.company.trim()) {
       setError('Position dan Company wajib diisi!');
@@ -274,11 +274,11 @@ export default function App() {
       };
 
       if (editingExp) {
-        await axios.put(`${API_URL}/experiences/${editingExp.id}`, expData);
+        await axios.put(`${API_URL}/api/experiences/${editingExp.id}`, expData);
         setSaveStatus('✓ Experience updated');
         setEditingExp(null);
       } else {
-        await axios.post(`${API_URL}/experiences`, expData);
+        await axios.post(`${API_URL}/api/experiences`, expData);
         setSaveStatus('✓ Experience added');
       }
 
@@ -307,7 +307,7 @@ export default function App() {
   const handleDeleteExperience = async (id) => {
     if (window.confirm('Hapus experience ini?')) {
       try {
-        await axios.delete(`${API_URL}/experiences/${id}`);
+        await axios.delete(`${API_URL}/api/experiences/${id}`);
         setSaveStatus('✓ Experience deleted');
         loadAllData();
         setTimeout(() => setSaveStatus(''), 2000);
@@ -327,11 +327,11 @@ export default function App() {
     
     try {
       if (editingCert) {
-        await axios.put(`${API_URL}/certifications/${editingCert.id}`, certForm);
+        await axios.put(`${API_URL}/api/certifications/${editingCert.id}`, certForm);
         setSaveStatus('✓ Certification updated');
         setEditingCert(null);
       } else {
-        await axios.post(`${API_URL}/certifications`, certForm);
+        await axios.post(`${API_URL}/api/certifications`, certForm);
         setSaveStatus('✓ Certification added');
       }
 
@@ -359,7 +359,7 @@ export default function App() {
   const handleDeleteCertification = async (id) => {
     if (window.confirm('Hapus certification ini?')) {
       try {
-        await axios.delete(`${API_URL}/certifications/${id}`);
+        await axios.delete(`${API_URL}/api/certifications/${id}`);
         setSaveStatus('✓ Certification deleted');
         loadAllData();
         setTimeout(() => setSaveStatus(''), 2000);
@@ -378,7 +378,7 @@ export default function App() {
     }
 
     try {
-      await axios.post(`${API_URL}/skills`, {
+      await axios.post(`${API_URL}/api/skills`, {
         category: editingSkillCategory,
         name: skillForm.name,
         level: skillForm.level
@@ -399,7 +399,7 @@ export default function App() {
     if (window.confirm('Hapus skill ini?')) {
       try {
         const skill = skills[category][index];
-        await axios.delete(`${API_URL}/skills/${skill.id}`);
+        await axios.delete(`${API_URL}/api/skills/${skill.id}`);
         setSaveStatus('✓ Skill deleted');
         loadAllData();
         setTimeout(() => setSaveStatus(''), 2000);
