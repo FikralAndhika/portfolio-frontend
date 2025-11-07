@@ -395,11 +395,11 @@ const handleDeleteProject = async (id) => {
     }
   };
 
-  const handleDeleteSkill = async (category, index) => {
+const handleDeleteSkill = async (category, index) => {
     if (window.confirm('Hapus skill ini?')) {
       try {
         const skill = skills[category][index];
-      await axios.delete(`${API_URL}/api/projects?id=${id}`);
+        await axios.delete(`${API_URL}/api/skills?id=${skill.id}`);
         setSaveStatus('✓ Skill deleted');
         loadAllData();
         setTimeout(() => setSaveStatus(''), 2000);
@@ -408,7 +408,7 @@ const handleDeleteProject = async (id) => {
         alert('Gagal menghapus skill!');
       }
     }
-  };
+};
 
   if (loading) {
     return (
