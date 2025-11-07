@@ -328,7 +328,7 @@ export default function App() {
     
     try {
       if (editingCert) {
-        await axios.put(`${API_URL}/api/certifications/${editingCert.id}`, certForm);
+        await axios.put(`${API_URL}/api/certifications?id=${editingCert.id}`, certForm);
         setSaveStatus('✓ Certification updated');
         setEditingCert(null);
       } else {
@@ -357,19 +357,19 @@ export default function App() {
     setShowCertForm(true);
   };
 
-  const handleDeleteCertification = async (id) => {
-    if (window.confirm('Hapus certification ini?')) {
-      try {
-        await axios.delete(`${API_URL}/api/certifications/${id}`);
-        setSaveStatus('✓ Certification deleted');
-        loadAllData();
-        setTimeout(() => setSaveStatus(''), 2000);
-      } catch (err) {
-        console.error('Error deleting certification:', err);
-        alert('Gagal menghapus certification!');
-      }
+ const handleDeleteCertification = async (id) => {
+  if (window.confirm('Hapus certification ini?')) {
+    try {
+      await axios.delete(`${API_URL}/api/certifications?id=${id}`);
+      setSaveStatus('✓ Certification deleted');
+      loadAllData();
+      setTimeout(() => setSaveStatus(''), 2000);
+    } catch (err) {
+      console.error('Error deleting certification:', err);
+      alert('Gagal menghapus certification!');
     }
-  };
+  }
+};
 
   const handleAddSkill = async () => {
     setError('');
