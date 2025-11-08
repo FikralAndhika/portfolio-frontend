@@ -541,7 +541,7 @@ const handleDeleteSkill = async (category, index) => {
                 )}
               </div>
               <div>
-                <p className="text-gray-300 mb-4 leading-relaxed text-justify">{aboutData.bio1}</p>
+                <p className="text-gray-300 mb-4 leading-relaxed">{aboutData.bio1}</p>
                 <p className="text-gray-300 mb-6 leading-relaxed">{aboutData.bio2}</p>
                 <div className="grid grid-cols-2 gap-4">
                   {aboutData.stats.map((stat, i) => (
