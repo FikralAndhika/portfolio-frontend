@@ -1,10 +1,142 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, X, Eye, Github, ExternalLink, Briefcase, Mail, Linkedin, AlertCircle, Edit2, Trash2, Menu } from 'lucide-react';
+import { Plus, X, Eye, Github, ExternalLink, Briefcase, Mail, Linkedin, AlertCircle, Edit2, Trash2, Menu, ChevronLeft, ChevronRight } from 'lucide-react';
 import axios from 'axios';
-
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
+// 🎨 Image Carousel Component - Inline
+const ImageCarousel = ({ images, projectTitle }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+
+  const prevImage = () => {
+    setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  };
+
+  const nextImage = () => {
+    setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  };
+
+  const handleTouchStart = (e) => {
+    setTouchStart(e.touches[0].clientX);
+  };
+
+  const handleTouchMove = (e) => {
+    setTouchEnd(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+    if (isLeftSwipe) nextImage();
+    if (isRightSwipe) prevImage();
+    setTouchStart(0);
+    setTouchEnd(0);
+  };
+
+  if (!images || images.length === 0) {
+    return (
+      <div className="w-full h-64 bg-gray-800 flex items-center justify-center rounded-t-2xl">
+        <p className="text-gray-400">No image available</p>
+      </div>
+    );
+  }
+
+  if (images.length === 1) {
+    return (
+      <img 
+        src={images[0]} 
+        alt={projectTitle} 
+        className="w-full h-96 object-contain bg-slate-900 rounded-t-2xl"
+        onError={(e) => {
+          e.target.src = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80';
+        }}
+      />
+    );
+  }
+
+  return (
+    <div className="relative">
+      <div 
+        className="relative h-96 overflow-hidden rounded-t-2xl group"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        <img 
+          src={images[currentIndex]} 
+          alt={`${projectTitle} - Image ${currentIndex + 1}`} 
+          className="w-full h-full object-contain bg-slate-900 transition-transform duration-500"
+          onError={(e) => {
+            e.target.src = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80';
+          }}
+        />
+        
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
+
+        <button
+          onClick={prevImage}
+          className="absolute left-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full transition-all opacity-0 group-hover:opacity-100"
+        >
+          <ChevronLeft size={24} />
+        </button>
+        
+        <button
+          onClick={nextImage}
+          className="absolute right-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full transition-all opacity-0 group-hover:opacity-100"
+        >
+          <ChevronRight size={24} />
+        </button>
+
+        <div className="absolute bottom-4 right-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm">
+          {currentIndex + 1} / {images.length}
+        </div>
+
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+          {images.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrentIndex(idx)}
+              className={`w-2 h-2 rounded-full transition-all ${
+                idx === currentIndex 
+                  ? 'bg-white w-6' 
+                  : 'bg-white bg-opacity-50 hover:bg-opacity-75'
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+
+      {images.length > 1 && (
+        <div className="flex gap-2 p-4 overflow-x-auto bg-slate-900 bg-opacity-50">
+          {images.map((img, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrentIndex(idx)}
+              className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
+                idx === currentIndex 
+                  ? 'border-purple-500 scale-105' 
+                  : 'border-transparent opacity-60 hover:opacity-100'
+              }`}
+            >
+              <img 
+                src={img} 
+                alt={`Thumbnail ${idx + 1}`} 
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.src = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80';
+                }}
+              />
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -44,9 +176,17 @@ export default function App() {
   const [editingCert, setEditingCert] = useState(null);
   const [editingSkillCategory, setEditingSkillCategory] = useState('');
   const [projectCategory, setProjectCategory] = useState('all');
+  
   const [projectForm, setProjectForm] = useState({
-    title: '', description: '', image: '', tags: '', github: '', demo: '', category: 'it'
+    title: '', 
+    description: '', 
+    images: [],
+    tags: '', 
+    github: '', 
+    demo: '', 
+    category: 'it'
   });
+  
   const [expForm, setExpForm] = useState({
     year: '', position: '', company: '', description: '', achievements: ''
   });
@@ -63,45 +203,56 @@ export default function App() {
   }, []);
 
   const loadAllData = async () => {
-  try {
-    setLoading(true);
-    
-    const projectsRes = await axios.get(`${API_URL}/api/projects`);
-    console.log('Projects response:', projectsRes.data);
-    console.log('Is array?', Array.isArray(projectsRes.data));
-    setProjects(Array.isArray(projectsRes.data) ? projectsRes.data : []);
+    try {
+      setLoading(true);
+      
+      const projectsRes = await axios.get(`${API_URL}/api/projects`);
+      console.log('📥 Projects response:', projectsRes.data);
+      
+      const normalizedProjects = Array.isArray(projectsRes.data) 
+        ? projectsRes.data.map(project => ({
+            ...project,
+            images: Array.isArray(project.images) 
+              ? project.images 
+              : (project.images ? [project.images] : []),
+            tags: Array.isArray(project.tags) ? project.tags : []
+          }))
+        : [];
+      
+      setProjects(normalizedProjects);
+      console.log('✅ Normalized projects:', normalizedProjects);
 
-    const aboutRes = await axios.get(`${API_URL}/api/about`);
-    if (aboutRes.data) {
-      setAboutData({
-        profileImage: aboutRes.data.profileImage || aboutData.profileImage,
-        bio1: aboutRes.data.bio1 || aboutData.bio1,
-        bio2: aboutRes.data.bio2 || aboutData.bio2,
-        stats: aboutRes.data.stats || aboutData.stats
-      });
+      const aboutRes = await axios.get(`${API_URL}/api/about`);
+      if (aboutRes.data) {
+        setAboutData({
+          profileImage: aboutRes.data.profile_image || aboutRes.data.profileImage || aboutData.profileImage,
+          bio1: aboutRes.data.bio1 || aboutData.bio1,
+          bio2: aboutRes.data.bio2 || aboutData.bio2,
+          stats: aboutRes.data.stats || aboutData.stats
+        });
+      }
+
+      const skillsRes = await axios.get(`${API_URL}/api/skills`);
+      setSkills(skillsRes.data || {});
+
+      const expRes = await axios.get(`${API_URL}/api/experiences`);
+      setExperiences(Array.isArray(expRes.data) ? expRes.data : []);
+
+      const certRes = await axios.get(`${API_URL}/api/certifications`);
+      setCertifications(Array.isArray(certRes.data) ? certRes.data : []);
+
+      console.log('✅ All data loaded successfully');
+    } catch (err) {
+      console.error('❌ Error loading data:', err);
+      setProjects([]);
+      setSkills({});
+      setExperiences([]);
+      setCertifications([]);
+      setSaveStatus('❌ Error loading data');
+    } finally {
+      setLoading(false);
     }
-
-    const skillsRes = await axios.get(`${API_URL}/api/skills`);
-    setSkills(skillsRes.data || {});
-
-    const expRes = await axios.get(`${API_URL}/api/experiences`);
-    setExperiences(Array.isArray(expRes.data) ? expRes.data : []);
-
-    const certRes = await axios.get(`${API_URL}/api/certifications`);
-    setCertifications(Array.isArray(certRes.data) ? certRes.data : []);
-
-    console.log('✅ Data loaded from backend');
-  } catch (err) {
-    console.error('❌ Error loading data:', err);
-    setProjects([]);
-    setSkills({});
-    setExperiences([]);
-    setCertifications([]);
-    setSaveStatus('❌ Error loading data');
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -188,7 +339,6 @@ export default function App() {
       setSaveStatus('✓ About & Photo updated successfully!');
       setShowAboutForm(false);
       
-      // Reload data to confirm
       await loadAllData();
       
       setTimeout(() => setSaveStatus(''), 3000);
@@ -200,24 +350,43 @@ export default function App() {
 
   const handleAddProject = async () => {
     setError('');
-    if (!projectForm.title.trim() || !projectForm.description.trim()) {
-      setError('Title dan deskripsi wajib diisi!');
+    
+    if (!projectForm.title.trim()) {
+      setError('Title wajib diisi!');
+      return;
+    }
+    
+    if (!projectForm.description.trim()) {
+      setError('Description wajib diisi!');
+      return;
+    }
+    
+    if (projectForm.images.length === 0) {
+      setError('Minimal 1 image harus diupload!');
       return;
     }
 
     try {
       const projectData = {
-        title: projectForm.title,
-        description: projectForm.description,
-        image: projectForm.image || "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80",
-        tags: projectForm.tags.split(',').map(t => t.trim()).filter(Boolean),
-        github: projectForm.github,
-        demo: projectForm.demo,
+        title: projectForm.title.trim(),
+        description: projectForm.description.trim(),
+        images: projectForm.images,
+        tags: projectForm.tags
+          .split(',')
+          .map(t => t.trim())
+          .filter(Boolean),
+        github: projectForm.github.trim(),
+        demo: projectForm.demo.trim(),
         category: projectForm.category
       };
 
+      console.log('📤 Sending project data:', projectData);
+
       if (editingProject) {
-        await axios.put(`${API_URL}/api/projects?id=${editingProject.id}`, projectData);
+        await axios.put(
+          `${API_URL}/api/projects?id=${editingProject.id}`, 
+          projectData
+        );
         setSaveStatus('✓ Project updated');
         setEditingProject(null);
       } else {
@@ -225,23 +394,42 @@ export default function App() {
         setSaveStatus('✓ Project added');
       }
 
-      loadAllData();
-      setProjectForm({ title: '', description: '', image: '', tags: '', github: '', demo: '', category: 'it' });
+      await loadAllData();
+      
+      setProjectForm({ 
+        title: '', 
+        description: '', 
+        images: [],
+        tags: '', 
+        github: '', 
+        demo: '', 
+        category: 'it' 
+      });
+      
       setShowProjectForm(false);
       setTimeout(() => setSaveStatus(''), 2000);
+      
     } catch (err) {
-      console.error('Error saving project:', err);
-      setError('Gagal menyimpan project!');
+      console.error('❌ Error saving project:', err.response?.data || err);
+      setError(err.response?.data?.error || 'Gagal menyimpan project!');
     }
   };
 
   const handleEditProject = (project) => {
     setEditingProject(project);
+    
+    let imagesArray = [];
+    if (Array.isArray(project.images)) {
+      imagesArray = project.images;
+    } else if (project.images) {
+      imagesArray = [project.images];
+    }
+    
     setProjectForm({
       title: project.title,
       description: project.description,
-      image: project.image,
-      tags: project.tags.join(', '),
+      images: imagesArray,
+      tags: Array.isArray(project.tags) ? project.tags.join(', ') : '',
       github: project.github || '',
       demo: project.demo || '',
       category: project.category || 'it'
@@ -249,20 +437,21 @@ export default function App() {
     setShowProjectForm(true);
   };
 
-const handleDeleteProject = async (id) => {
-  if (window.confirm('Hapus project ini?')) {
-    try {
-      await axios.delete(`${API_URL}/api/projects?id=${id}`);
-      setSaveStatus('✓ Project deleted');
-      loadAllData();
-      setTimeout(() => setSaveStatus(''), 2000);
-    } catch (err) {
-      console.error('Error deleting project:', err);
-      alert('Gagal menghapus project!');
+  const handleDeleteProject = async (id) => {
+    if (window.confirm('Hapus project ini?')) {
+      try {
+        await axios.delete(`${API_URL}/api/projects?id=${id}`);
+        setSaveStatus('✓ Project deleted');
+        await loadAllData();
+        setTimeout(() => setSaveStatus(''), 2000);
+      } catch (err) {
+        console.error('Error deleting project:', err);
+        alert('Gagal menghapus project!');
+      }
     }
-  }
-};
- const handleAddExperience = async () => {
+  };
+
+  const handleAddExperience = async () => {
     setError('');
     if (!expForm.position.trim() || !expForm.company.trim()) {
       setError('Position dan Company wajib diisi!');
@@ -279,16 +468,15 @@ const handleDeleteProject = async (id) => {
       };
 
       if (editingExp) {
-        await axios.put(`${API_URL}/api/experiences?id=${editingExp.id}`, expData);  // ← UBAH DISINI
+        await axios.put(`${API_URL}/api/experiences?id=${editingExp.id}`, expData);
         setSaveStatus('✓ Experience updated');
         setEditingExp(null);
-
       } else {
         await axios.post(`${API_URL}/api/experiences`, expData);
         setSaveStatus('✓ Experience added');
       }
 
-      loadAllData();
+      await loadAllData();
       setExpForm({ year: '', position: '', company: '', description: '', achievements: '' });
       setShowExpForm(false);
       setTimeout(() => setSaveStatus(''), 2000);
@@ -311,18 +499,18 @@ const handleDeleteProject = async (id) => {
   };
 
   const handleDeleteExperience = async (id) => {
-  if (window.confirm('Hapus experience ini?')) {
-    try {
-      await axios.delete(`${API_URL}/api/experiences?id=${id}`);  // ← UBAH DISINI
-      setSaveStatus('✓ Experience deleted');
-      loadAllData();
-      setTimeout(() => setSaveStatus(''), 2000);
-    } catch (err) {
-      console.error('Error deleting experience:', err);
-      alert('Gagal menghapus experience!');
+    if (window.confirm('Hapus experience ini?')) {
+      try {
+        await axios.delete(`${API_URL}/api/experiences?id=${id}`);
+        setSaveStatus('✓ Experience deleted');
+        await loadAllData();
+        setTimeout(() => setSaveStatus(''), 2000);
+      } catch (err) {
+        console.error('Error deleting experience:', err);
+        alert('Gagal menghapus experience!');
+      }
     }
-  }
-};
+  };
 
   const handleAddCertification = async () => {
     setError('');
@@ -341,7 +529,7 @@ const handleDeleteProject = async (id) => {
         setSaveStatus('✓ Certification added');
       }
 
-      loadAllData();
+      await loadAllData();
       setCertForm({ title: '', issuer: '', year: '', icon: '🎓' });
       setShowCertForm(false);
       setTimeout(() => setSaveStatus(''), 2000);
@@ -362,19 +550,19 @@ const handleDeleteProject = async (id) => {
     setShowCertForm(true);
   };
 
- const handleDeleteCertification = async (id) => {
-  if (window.confirm('Hapus certification ini?')) {
-    try {
-      await axios.delete(`${API_URL}/api/certifications?id=${id}`);
-      setSaveStatus('✓ Certification deleted');
-      loadAllData();
-      setTimeout(() => setSaveStatus(''), 2000);
-    } catch (err) {
-      console.error('Error deleting certification:', err);
-      alert('Gagal menghapus certification!');
+  const handleDeleteCertification = async (id) => {
+    if (window.confirm('Hapus certification ini?')) {
+      try {
+        await axios.delete(`${API_URL}/api/certifications?id=${id}`);
+        setSaveStatus('✓ Certification deleted');
+        await loadAllData();
+        setTimeout(() => setSaveStatus(''), 2000);
+      } catch (err) {
+        console.error('Error deleting certification:', err);
+        alert('Gagal menghapus certification!');
+      }
     }
-  }
-};
+  };
 
   const handleAddSkill = async () => {
     setError('');
@@ -391,7 +579,7 @@ const handleDeleteProject = async (id) => {
       });
       
       setSaveStatus('✓ Skill added');
-      loadAllData();
+      await loadAllData();
       setSkillForm({ name: '', level: 50 });
       setShowSkillForm(false);
       setTimeout(() => setSaveStatus(''), 2000);
@@ -401,20 +589,20 @@ const handleDeleteProject = async (id) => {
     }
   };
 
-const handleDeleteSkill = async (category, index) => {
+  const handleDeleteSkill = async (category, index) => {
     if (window.confirm('Hapus skill ini?')) {
       try {
         const skill = skills[category][index];
         await axios.delete(`${API_URL}/api/skills?id=${skill.id}`);
         setSaveStatus('✓ Skill deleted');
-        loadAllData();
+        await loadAllData();
         setTimeout(() => setSaveStatus(''), 2000);
       } catch (err) {
         console.error('Error deleting skill:', err);
         alert('Gagal menghapus skill!');
       }
     }
-};
+  };
 
   if (loading) {
     return (
@@ -684,7 +872,18 @@ const handleDeleteSkill = async (category, index) => {
             {filteredProjects.map(project => (
               <div key={project.id} className="group bg-white bg-opacity-5 backdrop-blur-lg rounded-xl overflow-hidden border border-white border-opacity-10 hover:border-purple-500 transition-all">
                 <div className="relative overflow-hidden">
-                  <img src={project.image} alt={project.title} className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500" />
+                  <img 
+                    src={
+                      (Array.isArray(project.images) && project.images.length > 0)
+                        ? project.images[0]
+                        : 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80'
+                    }
+                    alt={project.title} 
+                    className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500" 
+                    onError={(e) => {
+                      e.target.src = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80';
+                    }}
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-60"></div>
                   {isAuthenticated && (
                     <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -697,7 +896,7 @@ const handleDeleteSkill = async (category, index) => {
                   <h4 className="text-xl font-bold text-white mb-2">{project.title}</h4>
                   <p className="text-gray-300 text-sm mb-4 line-clamp-2">{project.description}</p>
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {project.tags.map((tag, i) => (
+                    {(project.tags || []).map((tag, i) => (
                       <span key={i} className="px-3 py-1 bg-purple-500 bg-opacity-20 text-purple-300 rounded-full text-xs font-medium">{tag}</span>
                     ))}
                   </div>
@@ -848,7 +1047,12 @@ const handleDeleteSkill = async (category, index) => {
           <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 max-w-2xl w-full border border-purple-500 shadow-2xl my-8">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-2xl font-bold text-white">{editingProject ? 'Edit Project' : 'Add Project'}</h3>
-              <button onClick={() => { setShowProjectForm(false); setError(''); setEditingProject(null); setProjectForm({ title: '', description: '', image: '', tags: '', github: '', demo: '', category: 'it' }); }} className="text-gray-400 hover:text-white"><X size={24} /></button>
+              <button onClick={() => { 
+                setShowProjectForm(false); 
+                setError(''); 
+                setEditingProject(null); 
+                setProjectForm({ title: '', description: '', images: [], tags: '', github: '', demo: '', category: 'it' }); 
+              }} className="text-gray-400 hover:text-white"><X size={24} /></button>
             </div>
             {error && (
               <div className="mb-4 p-3 bg-red-500 bg-opacity-20 border border-red-500 rounded-lg flex items-center gap-2 text-red-300">
@@ -856,30 +1060,121 @@ const handleDeleteSkill = async (category, index) => {
               </div>
             )}
             <div className="space-y-4">
-              <input type="text" value={projectForm.title} onChange={(e) => setProjectForm({ ...projectForm, title: e.target.value })} className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500" placeholder="Project Title *" />
-              <textarea value={projectForm.description} onChange={(e) => setProjectForm({ ...projectForm, description: e.target.value })} className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500 h-24 resize-none" placeholder="Description *" />
+              <input 
+                type="text" 
+                value={projectForm.title} 
+                onChange={(e) => setProjectForm({ ...projectForm, title: e.target.value })} 
+                className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500" 
+                placeholder="Project Title *" 
+              />
+              <textarea 
+                value={projectForm.description} 
+                onChange={(e) => setProjectForm({ ...projectForm, description: e.target.value })} 
+                className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500 h-24 resize-none" 
+                placeholder="Description *" 
+              />
               
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">Category *</label>
-                <select value={projectForm.category} onChange={(e) => setProjectForm({ ...projectForm, category: e.target.value })} className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500">
+                <select 
+                  value={projectForm.category} 
+                  onChange={(e) => setProjectForm({ ...projectForm, category: e.target.value })} 
+                  className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                >
                   <option value="it">IT & Development</option>
                   <option value="automotive">Automotive</option>
                 </select>
               </div>
               
-              <div className="space-y-2">
-                <input type="text" value={projectForm.image} onChange={(e) => setProjectForm({ ...projectForm, image: e.target.value })} className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500" placeholder="Image URL" />
-                <label className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg cursor-pointer transition-colors">
-                  <Plus size={18} />Upload Image
-                  <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, (img) => setProjectForm({ ...projectForm, image: img }))} />
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Images ({projectForm.images.length} uploaded) *
                 </label>
+                
+                {projectForm.images.length > 0 && (
+                  <div className="flex gap-2 flex-wrap mb-3">
+                    {projectForm.images.map((img, idx) => (
+                      <div key={idx} className="relative group">
+                        <img 
+                          src={img} 
+                          alt={`Preview ${idx + 1}`} 
+                          className="w-20 h-20 object-cover rounded-lg border border-white border-opacity-20" 
+                        />
+                        <button
+                          onClick={() => {
+                            const newImages = projectForm.images.filter((_, i) => i !== idx);
+                            setProjectForm({ ...projectForm, images: newImages });
+                          }}
+                          className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          type="button"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                <label className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg cursor-pointer transition-colors">
+                  <Plus size={18} />Add Image
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    className="hidden" 
+                    onChange={(e) => handleImageUpload(e, (img) => {
+                      setProjectForm({ 
+                        ...projectForm, 
+                        images: [...projectForm.images, img]
+                      });
+                    })} 
+                  />
+                </label>
+                
+                <input 
+                  type="text" 
+                  placeholder="Or paste image URL here and press Enter"
+                  className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500 mt-2" 
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' && e.target.value.trim()) {
+                      setProjectForm({ 
+                        ...projectForm, 
+                        images: [...projectForm.images, e.target.value.trim()]
+                      });
+                      e.target.value = '';
+                    }
+                  }}
+                />
               </div>
-              <input type="text" value={projectForm.tags} onChange={(e) => setProjectForm({ ...projectForm, tags: e.target.value })} className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500" placeholder="Tags (comma separated)" />
+              
+              <input 
+                type="text" 
+                value={projectForm.tags} 
+                onChange={(e) => setProjectForm({ ...projectForm, tags: e.target.value })} 
+                className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500" 
+                placeholder="Tags (comma separated)" 
+              />
               <div className="grid md:grid-cols-2 gap-4">
-                <input type="text" value={projectForm.github} onChange={(e) => setProjectForm({ ...projectForm, github: e.target.value })} className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500" placeholder="GitHub URL" />
-                <input type="text" value={projectForm.demo} onChange={(e) => setProjectForm({ ...projectForm, demo: e.target.value })} className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500" placeholder="Demo URL" />
+                <input 
+                  type="text" 
+                  value={projectForm.github} 
+                  onChange={(e) => setProjectForm({ ...projectForm, github: e.target.value })} 
+                  className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500" 
+                  placeholder="GitHub URL" 
+                />
+                <input 
+                  type="text" 
+                  value={projectForm.demo} 
+                  onChange={(e) => setProjectForm({ ...projectForm, demo: e.target.value })} 
+                  className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500" 
+                  placeholder="Demo URL" 
+                />
               </div>
-              <button onClick={handleAddProject} className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-3 rounded-lg font-medium">{editingProject ? 'Update' : 'Add'} Project</button>
+              <button 
+                onClick={handleAddProject} 
+                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-3 rounded-lg font-medium"
+              >
+                {editingProject ? 'Update' : 'Add'} Project
+              </button>
             </div>
           </div>
         </div>
@@ -888,25 +1183,49 @@ const handleDeleteSkill = async (category, index) => {
       {selectedProject && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-6 z-50 backdrop-blur-sm">
           <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl max-w-4xl w-full border border-purple-500 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <div className="relative">
-              <img src={selectedProject.image} alt={selectedProject.title} className="w-full h-64 object-cover rounded-t-2xl" />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent rounded-t-2xl"></div>
-              <button onClick={() => setSelectedProject(null)} className="absolute top-4 right-4 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full transition-colors"><X size={24} /></button>
-            </div>
+            
+            {/* ✨ CAROUSEL COMPONENT - Integrated Here */}
+            <ImageCarousel 
+              images={selectedProject.images || []} 
+              projectTitle={selectedProject.title}
+            />
+
+            <button 
+              onClick={() => setSelectedProject(null)} 
+              className="absolute top-4 right-4 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full transition-colors z-10"
+            >
+              <X size={24} />
+            </button>
+
             <div className="p-8">
               <h3 className="text-3xl font-bold text-white mb-4">{selectedProject.title}</h3>
               <p className="text-gray-300 mb-6 leading-relaxed">{selectedProject.description}</p>
+              
               <div className="flex flex-wrap gap-2 mb-6">
-                {selectedProject.tags.map((tag, i) => (
+                {(selectedProject.tags || []).map((tag, i) => (
                   <span key={i} className="px-4 py-2 bg-purple-500 bg-opacity-20 text-purple-300 rounded-full text-sm font-medium">{tag}</span>
                 ))}
               </div>
               <div className="flex gap-4">
                 {selectedProject.github && (
-                  <a href={selectedProject.github} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-white bg-opacity-10 hover:bg-opacity-20 text-white px-6 py-3 rounded-lg font-medium transition-colors"><Github size={20} />View Code</a>
+                  <a 
+                    href={selectedProject.github} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="flex items-center gap-2 bg-white bg-opacity-10 hover:bg-opacity-20 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                  >
+                    <Github size={20} />View Code
+                  </a>
                 )}
                 {selectedProject.demo && (
-                  <a href={selectedProject.demo} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"><ExternalLink size={20} />Live Demo</a>
+                  <a 
+                    href={selectedProject.demo} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                  >
+                    <ExternalLink size={20} />Live Demo
+                  </a>
                 )}
               </div>
             </div>
