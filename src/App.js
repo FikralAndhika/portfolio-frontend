@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Plus, X, Eye, Github, ExternalLink, Briefcase, Mail, Linkedin, AlertCircle, Edit2, Trash2, Menu, ChevronLeft, ChevronRight } from 'lucide-react';
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+// ✅ FIX: Update API URL untuk production
+const API_URL = process.env.REACT_APP_API_URL || 'https://portfolio-backend1-sooty.vercel.app';
 
 // 🎨 Image Carousel Component - Inline
 const ImageCarousel = ({ images, projectTitle }) => {
@@ -43,7 +44,7 @@ const ImageCarousel = ({ images, projectTitle }) => {
         <p className="text-gray-400">No image available</p>
       </div>
     );
-  }
+  };
 
   if (images.length === 1) {
     return (
@@ -68,7 +69,7 @@ const ImageCarousel = ({ images, projectTitle }) => {
       >
         <img 
           src={images[currentIndex]} 
-          alt={`${projectTitle} - Image ${currentIndex + 1}`} 
+          alt={`${projectTitle} ${currentIndex + 1}`} 
           className="w-full h-full object-contain bg-slate-900 transition-transform duration-500"
           onError={(e) => {
             e.target.src = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80';
@@ -79,6 +80,7 @@ const ImageCarousel = ({ images, projectTitle }) => {
 
         <button
           onClick={prevImage}
+          aria-label="Previous image"
           className="absolute left-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full transition-all opacity-0 group-hover:opacity-100"
         >
           <ChevronLeft size={24} />
@@ -86,6 +88,7 @@ const ImageCarousel = ({ images, projectTitle }) => {
         
         <button
           onClick={nextImage}
+          aria-label="Next image"
           className="absolute right-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full transition-all opacity-0 group-hover:opacity-100"
         >
           <ChevronRight size={24} />
@@ -100,6 +103,7 @@ const ImageCarousel = ({ images, projectTitle }) => {
             <button
               key={idx}
               onClick={() => setCurrentIndex(idx)}
+              aria-label={`Go to image ${idx + 1}`}
               className={`w-2 h-2 rounded-full transition-all ${
                 idx === currentIndex 
                   ? 'bg-white w-6' 
@@ -116,6 +120,7 @@ const ImageCarousel = ({ images, projectTitle }) => {
             <button
               key={idx}
               onClick={() => setCurrentIndex(idx)}
+              aria-label={`Thumbnail ${idx + 1}`}
               className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
                 idx === currentIndex 
                   ? 'border-purple-500 scale-105' 
@@ -124,7 +129,7 @@ const ImageCarousel = ({ images, projectTitle }) => {
             >
               <img 
                 src={img} 
-                alt={`Thumbnail ${idx + 1}`} 
+                alt="" 
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   e.target.src = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80';
@@ -198,10 +203,6 @@ export default function App() {
   });
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
-  useEffect(() => {
-    loadAllData();
-  }, []);
-
   const loadAllData = async () => {
     try {
       setLoading(true);
@@ -253,6 +254,12 @@ export default function App() {
       setLoading(false);
     }
   };
+
+  // ✅ FIX: Added eslint-disable comment for missing dependency
+  useEffect(() => {
+    loadAllData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -1097,7 +1104,7 @@ export default function App() {
                       <div key={idx} className="relative group">
                         <img 
                           src={img} 
-                          alt={`Preview ${idx + 1}`} 
+                          alt="" 
                           className="w-20 h-20 object-cover rounded-lg border border-white border-opacity-20" 
                         />
                         <button
@@ -1182,9 +1189,8 @@ export default function App() {
 
       {selectedProject && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-6 z-50 backdrop-blur-sm">
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl max-w-4xl w-full border border-purple-500 shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl max-w-4xl w-full border border-purple-500 shadow-2xl max-h-[90vh] overflow-y-auto relative">
             
-            {/* ✨ CAROUSEL COMPONENT - Integrated Here */}
             <ImageCarousel 
               images={selectedProject.images || []} 
               projectTitle={selectedProject.title}
