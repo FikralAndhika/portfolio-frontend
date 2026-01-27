@@ -335,15 +335,12 @@ export default function App() {
         stats: aboutData.stats
       };
       
-      console.log('💾 Saving About data...', {
-        hasImage: !!dataToSend.profileImage,
-        imageLength: dataToSend.profileImage?.length || 0
-      });
+      console.log('💾 Saving About data...', dataToSend);
       
       const response = await axios.put(`${API_URL}/api/about`, dataToSend);
       console.log('✅ About saved successfully:', response.data);
       
-      setSaveStatus('✓ About & Photo updated successfully!');
+      setSaveStatus('✓ About updated successfully!');
       setShowAboutForm(false);
       
       await loadAllData();
@@ -377,7 +374,7 @@ export default function App() {
       const projectData = {
         title: projectForm.title.trim(),
         description: projectForm.description.trim(),
-        images: projectForm.images, // ✅ Sudah array
+        images: projectForm.images,
         tags: projectForm.tags
           .split(',')
           .map(t => t.trim())
@@ -387,34 +384,18 @@ export default function App() {
         category: projectForm.category
       };
 
-      // ✅ LOGGING LENGKAP UNTUK DEBUG
-      console.log('🔍 ===== PROJECT SUBMIT DEBUG =====');
-      console.log('📤 Sending project data:', projectData);
-      console.log('📷 Images type:', Array.isArray(projectData.images) ? 'Array ✅' : 'NOT Array ❌');
-      console.log('📷 Images length:', projectData.images.length);
-      console.log('📷 Images content:', projectData.images);
-      console.log('🎯 Is editing?', !!editingProject);
-      if (editingProject) {
-        console.log('✏️ Editing project ID:', editingProject.id);
-      }
-      console.log('🔍 ===========================');
+      console.log('🔍 Sending project data:', projectData);
 
       if (editingProject) {
         const url = `${API_URL}/api/projects?id=${editingProject.id}`;
-        console.log('🌐 PUT URL:', url);
-        
         const response = await axios.put(url, projectData);
         console.log('✅ Update response:', response.data);
-        
         setSaveStatus('✓ Project updated');
         setEditingProject(null);
       } else {
         const url = `${API_URL}/api/projects`;
-        console.log('🌐 POST URL:', url);
-        
         const response = await axios.post(url, projectData);
         console.log('✅ Create response:', response.data);
-        
         setSaveStatus('✓ Project added');
       }
 
@@ -434,34 +415,23 @@ export default function App() {
       setTimeout(() => setSaveStatus(''), 2000);
       
     } catch (err) {
-      console.error('🚨 ===== ERROR DEBUG =====');
       console.error('❌ Error saving project:', err);
-      console.error('❌ Error response:', err.response?.data);
-      console.error('❌ Error status:', err.response?.status);
-      console.error('❌ Error message:', err.message);
-      console.error('🚨 =====================');
-      
       setError(err.response?.data?.error || 'Gagal menyimpan project!');
-      alert(`Error: ${err.response?.data?.error || err.message}\n\nCek console browser (F12) untuk detail lengkap!`);
+      alert(`Error: ${err.response?.data?.error || err.message}`);
     }
   };
 
   const handleEditProject = (project) => {
-    console.log('✏️ ===== EDIT PROJECT DEBUG =====');
-    console.log('📝 Original project:', project);
+    console.log('✏️ Editing project:', project);
     
     setEditingProject(project);
     
-    // ✅ FIX: Pastikan images selalu array
     let imagesArray = [];
     if (Array.isArray(project.images)) {
-      imagesArray = [...project.images]; // Clone array
+      imagesArray = [...project.images];
     } else if (project.images) {
       imagesArray = [project.images];
     }
-    
-    console.log('📷 Images converted to:', imagesArray);
-    console.log('📷 Is array?', Array.isArray(imagesArray));
     
     const formData = {
       title: project.title,
@@ -472,9 +442,6 @@ export default function App() {
       demo: project.demo || '',
       category: project.category || 'it'
     };
-    
-    console.log('📋 Form data set:', formData);
-    console.log('✏️ ============================');
     
     setProjectForm(formData);
     setShowProjectForm(true);
@@ -974,9 +941,10 @@ export default function App() {
         </div>
       )}
 
+      {/* ✅ ABOUT FORM WITH STATS EDITOR */}
       {showAboutForm && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-6 z-50 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 max-w-2xl w-full border border-purple-500 shadow-2xl my-8">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 max-w-2xl w-full border border-purple-500 shadow-2xl my-8 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-2xl font-bold text-white">Edit About</h3>
               <button onClick={() => setShowAboutForm(false)} className="text-gray-400 hover:text-white"><X size={24} /></button>
@@ -1005,6 +973,40 @@ export default function App() {
                 <label className="block text-sm font-medium text-gray-300 mb-2">Bio Paragraph 2</label>
                 <textarea value={aboutData.bio2} onChange={(e) => setAboutData({ ...aboutData, bio2: e.target.value })} className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500 h-24 resize-none" />
               </div>
+              
+              {/* ✅ STATS EDITOR */}
+              <div className="border-t border-white border-opacity-10 pt-4 mt-4">
+                <label className="block text-sm font-medium text-gray-300 mb-3">Statistics</label>
+                <div className="grid grid-cols-2 gap-3">
+                  {aboutData.stats.map((stat, idx) => (
+                    <div key={idx} className="bg-white bg-opacity-5 p-3 rounded-lg">
+                      <input 
+                        type="text" 
+                        value={stat.value} 
+                        onChange={(e) => {
+                          const newStats = [...aboutData.stats];
+                          newStats[idx].value = e.target.value;
+                          setAboutData({ ...aboutData, stats: newStats });
+                        }}
+                        className="w-full px-3 py-2 bg-white bg-opacity-10 border border-white border-opacity-10 rounded text-white focus:outline-none focus:border-purple-500 mb-2 text-sm"
+                        placeholder="Value (e.g., 3+)"
+                      />
+                      <input 
+                        type="text" 
+                        value={stat.label} 
+                        onChange={(e) => {
+                          const newStats = [...aboutData.stats];
+                          newStats[idx].label = e.target.value;
+                          setAboutData({ ...aboutData, stats: newStats });
+                        }}
+                        className="w-full px-3 py-2 bg-white bg-opacity-10 border border-white border-opacity-10 rounded text-white focus:outline-none focus:border-purple-500 text-sm"
+                        placeholder="Label (e.g., Years Experience)"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
               <button onClick={handleSaveAbout} className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-3 rounded-lg font-medium">Save Changes</button>
             </div>
           </div>
