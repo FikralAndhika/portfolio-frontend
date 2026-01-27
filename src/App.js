@@ -159,8 +159,8 @@ export default function App() {
     bio1: "Saya adalah seorang Web Developer dengan passion dalam menciptakan aplikasi web yang inovatif dan user-friendly.",
     bio2: "Saya selalu antusias untuk belajar teknologi baru dan mengikuti perkembangan tren di dunia web development.",
     stats: [
-      { label: "Years Experience", value: "3+" },
-      { label: "Projects Completed", value: "20+" },
+      { label: "Years Experience", value: "2+" },
+      { label: "Projects Completed", value: "10+" },
       { label: "Happy Clients", value: "15+" },
       { label: "Technologies", value: "10+" }
     ]
@@ -377,7 +377,7 @@ export default function App() {
       const projectData = {
         title: projectForm.title.trim(),
         description: projectForm.description.trim(),
-        images: projectForm.images,
+        images: projectForm.images, // ✅ Sudah array
         tags: projectForm.tags
           .split(',')
           .map(t => t.trim())
@@ -387,17 +387,34 @@ export default function App() {
         category: projectForm.category
       };
 
+      // ✅ LOGGING LENGKAP UNTUK DEBUG
+      console.log('🔍 ===== PROJECT SUBMIT DEBUG =====');
       console.log('📤 Sending project data:', projectData);
+      console.log('📷 Images type:', Array.isArray(projectData.images) ? 'Array ✅' : 'NOT Array ❌');
+      console.log('📷 Images length:', projectData.images.length);
+      console.log('📷 Images content:', projectData.images);
+      console.log('🎯 Is editing?', !!editingProject);
+      if (editingProject) {
+        console.log('✏️ Editing project ID:', editingProject.id);
+      }
+      console.log('🔍 ===========================');
 
       if (editingProject) {
-        await axios.put(
-          `${API_URL}/api/projects?id=${editingProject.id}`, 
-          projectData
-        );
+        const url = `${API_URL}/api/projects?id=${editingProject.id}`;
+        console.log('🌐 PUT URL:', url);
+        
+        const response = await axios.put(url, projectData);
+        console.log('✅ Update response:', response.data);
+        
         setSaveStatus('✓ Project updated');
         setEditingProject(null);
       } else {
-        await axios.post(`${API_URL}/api/projects`, projectData);
+        const url = `${API_URL}/api/projects`;
+        console.log('🌐 POST URL:', url);
+        
+        const response = await axios.post(url, projectData);
+        console.log('✅ Create response:', response.data);
+        
         setSaveStatus('✓ Project added');
       }
 
@@ -417,22 +434,36 @@ export default function App() {
       setTimeout(() => setSaveStatus(''), 2000);
       
     } catch (err) {
-      console.error('❌ Error saving project:', err.response?.data || err);
+      console.error('🚨 ===== ERROR DEBUG =====');
+      console.error('❌ Error saving project:', err);
+      console.error('❌ Error response:', err.response?.data);
+      console.error('❌ Error status:', err.response?.status);
+      console.error('❌ Error message:', err.message);
+      console.error('🚨 =====================');
+      
       setError(err.response?.data?.error || 'Gagal menyimpan project!');
+      alert(`Error: ${err.response?.data?.error || err.message}\n\nCek console browser (F12) untuk detail lengkap!`);
     }
   };
 
   const handleEditProject = (project) => {
+    console.log('✏️ ===== EDIT PROJECT DEBUG =====');
+    console.log('📝 Original project:', project);
+    
     setEditingProject(project);
     
+    // ✅ FIX: Pastikan images selalu array
     let imagesArray = [];
     if (Array.isArray(project.images)) {
-      imagesArray = project.images;
+      imagesArray = [...project.images]; // Clone array
     } else if (project.images) {
       imagesArray = [project.images];
     }
     
-    setProjectForm({
+    console.log('📷 Images converted to:', imagesArray);
+    console.log('📷 Is array?', Array.isArray(imagesArray));
+    
+    const formData = {
       title: project.title,
       description: project.description,
       images: imagesArray,
@@ -440,7 +471,12 @@ export default function App() {
       github: project.github || '',
       demo: project.demo || '',
       category: project.category || 'it'
-    });
+    };
+    
+    console.log('📋 Form data set:', formData);
+    console.log('✏️ ============================');
+    
+    setProjectForm(formData);
     setShowProjectForm(true);
   };
 
