@@ -848,7 +848,7 @@ const handleDeleteSkill = async (category, index) => {
           <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 max-w-2xl w-full border border-purple-500 shadow-2xl my-8">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-2xl font-bold text-white">{editingProject ? 'Edit Project' : 'Add Project'}</h3>
-              <button onClick={() => { setShowProjectForm(false); setError(''); setEditingProject(null); setProjectForm({ title: '', description: '', images: [], tags: '', github: '', demo: '', category: 'it' }); }} className="text-gray-400 hover:text-white"><X size={24} /></button>
+              <button onClick={() => { setShowProjectForm(false); setError(''); setEditingProject(null); setProjectForm({ title: '', description: '', image: '', tags: '', github: '', demo: '', category: 'it' }); }} className="text-gray-400 hover:text-white"><X size={24} /></button>
             </div>
             {error && (
               <div className="mb-4 p-3 bg-red-500 bg-opacity-20 border border-red-500 rounded-lg flex items-center gap-2 text-red-300">
@@ -868,49 +868,12 @@ const handleDeleteSkill = async (category, index) => {
               </div>
               
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-300 mb-2">Project Images *</label>
-                
-                {projectForm.images.length > 0 && (
-                  <div className="grid grid-cols-3 gap-3 mb-3">
-                    {projectForm.images.map((img, idx) => (
-                      <div key={idx} className="relative group">
-                        <img src={img} alt={`Preview ${idx + 1}`} className="w-full h-24 object-cover rounded-lg" />
-                        <button
-                          onClick={() => setProjectForm({ 
-                            ...projectForm, 
-                            images: projectForm.images.filter((_, i) => i !== idx) 
-                          })}
-                          className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <X size={14} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                
+                <input type="text" value={projectForm.image} onChange={(e) => setProjectForm({ ...projectForm, image: e.target.value })} className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500" placeholder="Image URL" />
                 <label className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg cursor-pointer transition-colors">
-                  <Plus size={18} />Upload Images ({projectForm.images.length})
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    multiple
-                    className="hidden" 
-                    onChange={(e) => {
-                      const files = Array.from(e.target.files);
-                      files.forEach(file => {
-                        handleImageUpload({ target: { files: [file] } }, (img) => {
-                          setProjectForm(prev => ({ 
-                            ...prev, 
-                            images: [...prev.images, img] 
-                          }));
-                        });
-                      });
-                    }} 
-                  />
+                  <Plus size={18} />Upload Image
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, (img) => setProjectForm({ ...projectForm, image: img }))} />
                 </label>
               </div>
-              
               <input type="text" value={projectForm.tags} onChange={(e) => setProjectForm({ ...projectForm, tags: e.target.value })} className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500" placeholder="Tags (comma separated)" />
               <div className="grid md:grid-cols-2 gap-4">
                 <input type="text" value={projectForm.github} onChange={(e) => setProjectForm({ ...projectForm, github: e.target.value })} className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500" placeholder="GitHub URL" />
@@ -921,7 +884,7 @@ const handleDeleteSkill = async (category, index) => {
           </div>
         </div>
       )}
-      
+
       {selectedProject && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-6 z-50 backdrop-blur-sm">
           <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl max-w-4xl w-full border border-purple-500 shadow-2xl max-h-[90vh] overflow-y-auto">
