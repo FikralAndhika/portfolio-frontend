@@ -223,7 +223,8 @@ export default function App() {
   const [showSkillForm, setShowSkillForm]     = useState(false);
   const [showExpForm, setShowExpForm]         = useState(false);
   const [showCertForm, setShowCertForm]       = useState(false);
-  const [isMuted, setIsMuted]                 = useState(true);
+  const [isMuted, setIsMuted]                 = useState(false);
+  const [showEnterSite, setShowEnterSite]     = useState(true);
   const audioRef                              = useRef(null);
 
   const correctPassword = 'admin123';
@@ -297,24 +298,8 @@ export default function App() {
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    // start muted, play on first user interaction
     audio.volume = 0.3;
     audio.loop   = true;
-    audio.muted  = true;
-    const startAudio = () => {
-      audio.play().then(() => {
-        audio.muted = false;
-        setIsMuted(false);
-      }).catch(() => {});
-      document.removeEventListener('click', startAudio);
-      document.removeEventListener('touchstart', startAudio);
-    };
-    document.addEventListener('click', startAudio);
-    document.addEventListener('touchstart', startAudio);
-    return () => {
-      document.removeEventListener('click', startAudio);
-      document.removeEventListener('touchstart', startAudio);
-    };
   }, []);
 
   useEffect(() => {
@@ -330,6 +315,14 @@ export default function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleEnterSite = () => {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.play().catch(() => {});
+    }
+    setShowEnterSite(false);
+  };
+
   const toggleMute = () => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -342,7 +335,6 @@ export default function App() {
       setIsMuted(true);
     }
   };
-
   const scrollTo = (id) => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -565,6 +557,53 @@ export default function App() {
 
       {/* Audio player */}
       <audio ref={audioRef} src="/music/moodgame.mp3" loop preload="auto" />
+
+      {/* ── ENTER SITE OVERLAY ── */}
+      {showEnterSite && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center"
+          style={{ background: 'rgba(2,4,8,0.97)', backdropFilter: 'blur(8px)' }}>
+
+          {/* grid bg */}
+          <div className="absolute inset-0 bg-cyber-grid pointer-events-none" style={{ backgroundSize: '40px 40px', opacity: 0.4 }} />
+
+          {/* glow orb */}
+          <div className="absolute inset-0 pointer-events-none"
+            style={{ background: 'radial-gradient(ellipse at center, rgba(0,212,255,0.06) 0%, transparent 60%)' }} />
+
+          <div className="relative text-center px-8">
+            {/* top label */}
+            <p className="font-mono-cyber text-xs mb-6 tracking-widest"
+              style={{ color: 'rgba(0,212,255,0.5)' }}>
+              // INITIALIZING PORTFOLIO_v1.0
+            </p>
+
+            {/* name */}
+            <h1 className="font-orbitron font-black text-white mb-2 leading-none"
+              style={{ fontSize: 'clamp(2rem, 6vw, 4rem)' }}>
+              FIKRAL ANDHIKA
+            </h1>
+            <h1 className="font-orbitron font-black mb-8 leading-none"
+              style={{ fontSize: 'clamp(2rem, 6vw, 4rem)', background: 'linear-gradient(135deg, var(--cyber-cyan), var(--cyber-neon))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+              RAMADHANI
+            </h1>
+
+            <div className="cyber-divider mb-10 mx-auto" style={{ maxWidth: 200 }} />
+
+            {/* enter button */}
+            <button onClick={handleEnterSite}
+              className="btn-cyber-primary flex items-center gap-3 mx-auto text-sm px-10 py-4"
+              style={{ fontSize: '0.85rem' }}>
+              <Volume2 size={18} />
+              ENTER SITE
+            </button>
+
+            <p className="font-mono-cyber text-xs mt-6"
+              style={{ color: 'rgba(200,214,229,0.2)' }}>
+              click to enter with music
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Grid background */}
       <div className="fixed inset-0 bg-cyber-grid pointer-events-none" style={{ backgroundSize: '40px 40px', zIndex: 0 }} />
