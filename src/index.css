@@ -746,3 +746,17 @@ textarea.cyber-input {
 .skill-bar-fill.animate {
   width: var(--skill-level) !important;
 }
+
+/* ============================================
+   ABOUT HERO - SCAN LINE
+   ============================================ */
+.about-scan-line {
+  animation: aboutScan 6s linear infinite;
+}
+
+@keyframes aboutScan {
+  0%   { top: 0%; opacity: 0; }
+  5%   { opacity: 0.15; }
+  95%  { opacity: 0.15; }
+  100% { top: 100%; opacity: 0; }
+}

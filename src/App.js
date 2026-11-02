@@ -725,69 +725,181 @@ export default function App() {
             )}
           </div>
 
-          <div className="cyber-panel relative p-8 md:p-10">
-            <HudCorners />
-            <div className="grid md:grid-cols-2 gap-12 items-center">
+          {/* ── ABOUT HERO LAYOUT ── */}
+          <div className="relative min-h-[520px] flex items-end overflow-hidden"
+            style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.03) 0%, rgba(2,4,8,0.95) 40%, rgba(0,255,136,0.03) 100%)', border: '1px solid rgba(0,212,255,0.08)' }}>
 
-              {/* photo */}
-              <Reveal direction="left">
-                <div className="relative group">
-                  <div className="absolute -inset-px pointer-events-none"
-                    style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.2), transparent 50%, rgba(0,255,136,0.2))', borderRadius: 2 }} />
-                  <div className="relative overflow-hidden" style={{ aspectRatio: '4/5' }}>
-                    {aboutData.profileImage ? (
-                      <img src={aboutData.profileImage} alt="Profile"
-                        className="w-full h-full object-cover"
-                        style={{ filter: 'brightness(0.9) contrast(1.1)' }} />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-cyber-navy">
-                        <User size={64} style={{ color: 'rgba(0,212,255,0.2)' }} />
-                      </div>
-                    )}
-                    {/* overlay on hover */}
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                      style={{ background: 'rgba(2,4,8,0.7)', backdropFilter: 'blur(4px)' }}>
-                      {isAuthenticated && (
-                        <button className="btn-cyber-primary text-xs" onClick={() => setShowAboutForm(true)}>
-                          CHANGE PHOTO
-                        </button>
-                      )}
+            {/* bg grid subtle */}
+            <div className="absolute inset-0 bg-cyber-grid pointer-events-none" style={{ backgroundSize: '30px 30px', opacity: 0.5 }} />
+
+            {/* ambient glow left */}
+            <div className="absolute top-0 left-0 w-96 h-full pointer-events-none"
+              style={{ background: 'radial-gradient(ellipse at left center, rgba(0,212,255,0.06) 0%, transparent 70%)' }} />
+            {/* ambient glow right */}
+            <div className="absolute top-0 right-0 w-96 h-full pointer-events-none"
+              style={{ background: 'radial-gradient(ellipse at right center, rgba(0,255,136,0.06) 0%, transparent 70%)' }} />
+
+            {/* HUD top-left corner */}
+            <div className="absolute top-5 left-5 pointer-events-none" style={{ opacity: 0.5 }}>
+              <div style={{ width: 40, height: 40, borderTop: '1px solid var(--cyber-cyan)', borderLeft: '1px solid var(--cyber-cyan)' }} />
+            </div>
+            {/* HUD top-right corner */}
+            <div className="absolute top-5 right-5 pointer-events-none" style={{ opacity: 0.5 }}>
+              <div style={{ width: 40, height: 40, borderTop: '1px solid var(--cyber-cyan)', borderRight: '1px solid var(--cyber-cyan)' }} />
+            </div>
+            {/* HUD bottom-right corner */}
+            <div className="absolute bottom-5 right-5 pointer-events-none" style={{ opacity: 0.5 }}>
+              <div style={{ width: 40, height: 40, borderBottom: '1px solid var(--cyber-neon)', borderRight: '1px solid var(--cyber-neon)' }} />
+            </div>
+            {/* HUD bottom-left corner */}
+            <div className="absolute bottom-5 left-5 pointer-events-none" style={{ opacity: 0.5 }}>
+              <div style={{ width: 40, height: 40, borderBottom: '1px solid var(--cyber-neon)', borderLeft: '1px solid var(--cyber-neon)' }} />
+            </div>
+
+            {/* scanning line animation */}
+            <div className="absolute left-0 right-0 h-px pointer-events-none about-scan-line"
+              style={{ background: 'linear-gradient(90deg, transparent, var(--cyber-cyan), transparent)', opacity: 0.15 }} />
+
+            <div className="relative w-full grid md:grid-cols-3 items-end gap-0">
+
+              {/* ── LEFT: bio text ── */}
+              <Reveal direction="left" className="p-8 md:p-10 self-center">
+                <p className="section-label mb-3">IDENTITY.LOG</p>
+                <p className="text-gray-300 mb-5 leading-relaxed text-sm">{aboutData.bio1}</p>
+                <p className="text-gray-400 mb-8 leading-relaxed text-sm">{aboutData.bio2}</p>
+
+                {/* stat pairs */}
+                <div className="space-y-3">
+                  {aboutData.stats.slice(0, 2).map((stat, i) => (
+                    <div key={i} className="flex items-center gap-4">
+                      <span className="font-orbitron font-bold text-xl"
+                        style={{ color: 'var(--cyber-cyan)', minWidth: 48 }}>
+                        {stat.value}
+                      </span>
+                      <span className="font-mono-cyber text-xs" style={{ color: 'rgba(200,214,229,0.4)' }}>
+                        {stat.label}
+                      </span>
                     </div>
-                  </div>
-                  {/* decorative scan line */}
-                  <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                    <div className="absolute left-0 right-0 h-px"
-                      style={{ background: 'linear-gradient(90deg, transparent, var(--cyber-cyan), transparent)', opacity: 0.3, top: '30%' }} />
-                  </div>
+                  ))}
                 </div>
               </Reveal>
 
-              {/* text content */}
-              <div>
-                <Reveal direction="right">
-                  <div className="mb-6">
-                    <p className="section-label mb-1">BIO.TXT</p>
-                    <div className="w-8 h-px" style={{ background: 'var(--cyber-cyan)' }} />
-                  </div>
-                  <p className="text-gray-400 mb-4 leading-relaxed text-sm">{aboutData.bio1}</p>
-                  <p className="text-gray-400 mb-8 leading-relaxed text-sm">{aboutData.bio2}</p>
-                </Reveal>
+              {/* ── CENTER: photo ── */}
+              <Reveal direction="up" className="relative flex justify-center items-end">
+                {/* ground glow */}
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 pointer-events-none"
+                  style={{
+                    width: '80%', height: 80,
+                    background: 'radial-gradient(ellipse at center bottom, rgba(0,212,255,0.25) 0%, transparent 70%)',
+                    filter: 'blur(12px)',
+                  }} />
+                {/* outer ring */}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-none"
+                  style={{
+                    width: 220, height: 220,
+                    borderRadius: '50%',
+                    border: '1px solid rgba(0,212,255,0.12)',
+                    boxShadow: '0 0 30px rgba(0,212,255,0.08)',
+                  }} />
+                {/* inner ring */}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-none"
+                  style={{
+                    width: 160, height: 160,
+                    borderRadius: '50%',
+                    border: '1px solid rgba(0,212,255,0.08)',
+                  }} />
 
-                {/* stats grid */}
-                <Reveal stagger className="grid grid-cols-2 gap-3">
-                  {aboutData.stats.map((stat, i) => (
-                    <div key={i} className="stat-card">
-                      <p className="font-orbitron font-bold text-2xl mb-1"
-                        style={{ color: i % 2 === 0 ? 'var(--cyber-cyan)' : 'var(--cyber-neon)' }}>
+                {/* photo */}
+                {aboutData.profileImage ? (
+                  <div className="relative group">
+                    <img
+                      src={aboutData.profileImage}
+                      alt="Profile"
+                      style={{
+                        height: 420,
+                        width: 'auto',
+                        maxWidth: '100%',
+                        objectFit: 'contain',
+                        objectPosition: 'bottom',
+                        filter: 'drop-shadow(0 0 20px rgba(0,212,255,0.2)) drop-shadow(0 0 60px rgba(0,212,255,0.08))',
+                        position: 'relative',
+                        zIndex: 1,
+                      }}
+                    />
+                    {/* ground shadow */}
+                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2"
+                      style={{
+                        width: '60%', height: 20,
+                        background: 'radial-gradient(ellipse, rgba(0,212,255,0.3) 0%, transparent 70%)',
+                        filter: 'blur(8px)',
+                      }} />
+                    {/* admin edit overlay */}
+                    {isAuthenticated && (
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                        style={{ background: 'rgba(2,4,8,0.6)', backdropFilter: 'blur(4px)' }}>
+                        <button className="btn-cyber-primary text-xs" onClick={() => setShowAboutForm(true)}>
+                          CHANGE PHOTO
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center pb-10" style={{ height: 420 }}>
+                    <User size={80} style={{ color: 'rgba(0,212,255,0.15)' }} />
+                    {isAuthenticated && (
+                      <button className="btn-cyber-primary text-xs mt-6" onClick={() => setShowAboutForm(true)}>
+                        UPLOAD PHOTO
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {/* HUD data lines floating around photo */}
+                <div className="absolute top-8 left-2 font-mono-cyber pointer-events-none"
+                  style={{ fontSize: '0.6rem', color: 'rgba(0,212,255,0.3)', lineHeight: 2 }}>
+                  <div>SYS_ID: FKR-001</div>
+                  <div>STATUS: ACTIVE</div>
+                  <div>MODE: DEV</div>
+                </div>
+                <div className="absolute top-8 right-2 font-mono-cyber text-right pointer-events-none"
+                  style={{ fontSize: '0.6rem', color: 'rgba(0,255,136,0.3)', lineHeight: 2 }}>
+                  <div>STACK: FULL</div>
+                  <div>BUILD: READY</div>
+                  <div>PING: OK</div>
+                </div>
+              </Reveal>
+
+              {/* ── RIGHT: stats ── */}
+              <Reveal direction="right" className="p-8 md:p-10 self-center">
+                <p className="section-label mb-3">METRICS.DAT</p>
+                <div className="space-y-3 mb-8">
+                  {aboutData.stats.slice(2).map((stat, i) => (
+                    <div key={i} className="flex items-center gap-4">
+                      <span className="font-orbitron font-bold text-xl"
+                        style={{ color: 'var(--cyber-neon)', minWidth: 48 }}>
                         {stat.value}
-                      </p>
-                      <p className="font-mono-cyber text-xs" style={{ color: 'rgba(200,214,229,0.4)' }}>
+                      </span>
+                      <span className="font-mono-cyber text-xs" style={{ color: 'rgba(200,214,229,0.4)' }}>
                         {stat.label}
-                      </p>
+                      </span>
                     </div>
                   ))}
-                </Reveal>
-              </div>
+                </div>
+
+                {/* decorative data bar */}
+                <div className="space-y-2">
+                  {['FRONTEND', 'BACKEND', 'DATA'].map((label, i) => (
+                    <div key={label}>
+                      <div className="flex justify-between mb-1">
+                        <span className="font-mono-cyber text-xs" style={{ color: 'rgba(200,214,229,0.4)', fontSize: '0.65rem' }}>{label}</span>
+                      </div>
+                      <div className="skill-bar-track">
+                        <div className="skill-bar-fill" style={{ width: `${[85, 75, 70][i]}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Reveal>
             </div>
           </div>
         </section>
