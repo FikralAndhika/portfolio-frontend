@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  Plus, X, Eye, Github, ExternalLink, Briefcase, Mail, Linkedin,
+  Plus, X, Eye, Github, ExternalLink, Mail, Linkedin,
   AlertCircle, Edit2, Trash2, Menu, ChevronLeft, ChevronRight,
-  Shield, Cpu, Zap, Terminal, Radio, Lock, User, Code2
+  Shield, Cpu, Zap, Lock, User, Code2
 } from 'lucide-react';
 import axios from 'axios';
 
@@ -13,7 +13,7 @@ const API_URL = process.env.REACT_APP_API_URL || 'https://portfolio-backend1-soo
 ───────────────────────────────────────── */
 const SectionHeader = ({ label, title, accent = 'cyan' }) => (
   <div className="mb-12">
-    <p className="section-label mb-2">// {label}</p>
+    <p className="section-label mb-2">{'// '}{label}</p>
     <h3 className={`section-title text-3xl md:text-4xl font-orbitron font-bold`}>{title}</h3>
     <div className="cyber-divider mt-4 max-w-xs" />
   </div>
@@ -809,7 +809,7 @@ export default function App() {
                   {exp.achievements?.length > 0 && (
                     <div>
                       <p className="font-mono-cyber text-xs mb-3" style={{ color: 'rgba(0,212,255,0.5)' }}>
-                        // KEY_ACHIEVEMENTS
+                        {'// KEY_ACHIEVEMENTS'}
                       </p>
                       <ul className="space-y-2">
                         {exp.achievements.map((ach, j) => (
