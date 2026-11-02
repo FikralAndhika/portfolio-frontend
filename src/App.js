@@ -494,6 +494,15 @@ export default function App() {
     } catch (err) { console.error(err); }
   };
 
+  const stars = React.useMemo(() =>
+    [...Array(60)].map((_, i) => ({
+      id: i,
+      width: Math.random() * 2 + 1,
+      top: Math.random() * 100,
+      left: Math.random() * 100,
+      opacity: Math.random() * 0.5 + 0.1,
+    }))
+  , []);
   const filteredProjects = projects.filter(p => projectCategory === 'all' || p.category === projectCategory);
   const NAV_SECTIONS = ['home', 'about', 'skills', 'experience', 'certifications', 'projects'];
 
@@ -725,96 +734,118 @@ export default function App() {
             )}
           </div>
 
-          {/* ── ABOUT LAYOUT ── */}
-          <div className="cyber-panel relative p-8 md:p-12">
-            <HudCorners />
-            <div className="grid md:grid-cols-2 gap-12 items-center">
+          {/* ── ABOUT HERO LAYOUT ── */}
+          <div className="relative overflow-hidden" style={{
+            minHeight: 480,
+            background: 'radial-gradient(ellipse at 20% 50%, rgba(0,30,60,0.8) 0%, rgba(2,4,8,1) 60%), radial-gradient(ellipse at 80% 50%, rgba(0,20,40,0.6) 0%, transparent 60%)',
+            border: '1px solid rgba(0,212,255,0.08)',
+          }}>
 
-              {/* ── LEFT: photo ── */}
-              <Reveal direction="left" className="flex justify-center">
-                <div className="relative group" style={{ width: 320 }}>
-                  {/* neon border frame */}
-                  <div className="absolute -inset-1 pointer-events-none"
-                    style={{
-                      background: 'linear-gradient(135deg, rgba(0,212,255,0.3), transparent 40%, rgba(0,255,136,0.3))',
-                      clipPath: 'polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%)',
-                    }} />
+            {/* stars background */}
+            {stars.map(s => (
+              <div key={s.id} className="absolute rounded-full pointer-events-none"
+                style={{ width: s.width, height: s.width, top: `${s.top}%`, left: `${s.left}%`, background: 'white', opacity: s.opacity }} />
+            ))}
 
-                  {/* photo container */}
-                  <div className="relative overflow-hidden"
-                    style={{
-                      clipPath: 'polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%)',
-                      background: 'rgba(6,13,20,0.9)',
-                    }}>
-                    {aboutData.profileImage ? (
-                      <img
-                        src={aboutData.profileImage}
-                        alt="Profile"
-                        className="w-full"
-                        style={{
-                          height: 380,
-                          objectFit: 'cover',
-                          objectPosition: 'top center',
-                          filter: 'brightness(0.95) contrast(1.05)',
-                          mixBlendMode: 'normal',
-                          display: 'block',
-                        }}
-                      />
-                    ) : (
-                      <div className="w-full flex items-center justify-center" style={{ height: 380, background: 'rgba(10,22,40,0.8)' }}>
-                        <User size={64} style={{ color: 'rgba(0,212,255,0.2)' }} />
-                      </div>
-                    )}
+            {/* subtle grid */}
+            <div className="absolute inset-0 bg-cyber-grid pointer-events-none" style={{ backgroundSize: '40px 40px', opacity: 0.3 }} />
 
-                    {/* bottom neon glow overlay */}
-                    <div className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none"
-                      style={{ background: 'linear-gradient(to top, rgba(0,212,255,0.08), transparent)' }} />
+            {/* HUD corners */}
+            <div className="absolute top-4 left-4 pointer-events-none" style={{ width: 24, height: 24, borderTop: '1px solid rgba(0,212,255,0.4)', borderLeft: '1px solid rgba(0,212,255,0.4)' }} />
+            <div className="absolute top-4 right-4 pointer-events-none" style={{ width: 24, height: 24, borderTop: '1px solid rgba(0,212,255,0.4)', borderRight: '1px solid rgba(0,212,255,0.4)' }} />
+            <div className="absolute bottom-4 left-4 pointer-events-none" style={{ width: 24, height: 24, borderBottom: '1px solid rgba(0,212,255,0.4)', borderLeft: '1px solid rgba(0,212,255,0.4)' }} />
+            <div className="absolute bottom-4 right-4 pointer-events-none" style={{ width: 24, height: 24, borderBottom: '1px solid rgba(0,212,255,0.4)', borderRight: '1px solid rgba(0,212,255,0.4)' }} />
 
-                    {/* scan line */}
-                    <div className="absolute left-0 right-0 h-px pointer-events-none"
-                      style={{ background: 'linear-gradient(90deg, transparent, var(--cyber-cyan), transparent)', opacity: 0.25, top: '40%' }} />
-                  </div>
+            <div className="relative grid md:grid-cols-3 items-end h-full" style={{ minHeight: 480 }}>
 
-                  {/* bottom glow */}
-                  <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 pointer-events-none"
-                    style={{ width: '70%', height: 20, background: 'radial-gradient(ellipse, rgba(0,212,255,0.3) 0%, transparent 70%)', filter: 'blur(6px)' }} />
-
-                  {/* admin hover */}
-                  {isAuthenticated && (
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                      style={{ background: 'rgba(2,4,8,0.7)', backdropFilter: 'blur(4px)' }}>
-                      <button className="btn-cyber-primary text-xs" onClick={() => setShowAboutForm(true)}>
-                        CHANGE PHOTO
-                      </button>
-                    </div>
-                  )}
-                </div>
+              {/* ── LEFT: name + bio1 ── */}
+              <Reveal direction="left" className="p-8 md:p-10 self-center">
+                <p className="font-mono-cyber text-sm mb-2" style={{ color: 'var(--cyber-cyan)' }}>
+                  Hi, I'm
+                </p>
+                <h2 className="font-orbitron font-black text-white mb-6 leading-tight"
+                  style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)' }}>
+                  Fikral Andhika<br />
+                  <span style={{ background: 'linear-gradient(135deg, var(--cyber-cyan), var(--cyber-neon))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                    Ramadhani
+                  </span>
+                </h2>
+                <p className="text-gray-400 text-sm leading-relaxed mb-6" style={{ maxWidth: 260 }}>
+                  {aboutData.bio1}
+                </p>
+                <button className="btn-cyber-primary text-xs flex items-center gap-2"
+                  onClick={() => scrollTo('projects')}>
+                  <Code2 size={14} /> VIEW PROJECTS
+                </button>
               </Reveal>
 
-              {/* ── RIGHT: text ── */}
-              <div>
-                <Reveal direction="right">
-                  <p className="section-label mb-2">BIO.TXT</p>
-                  <div className="w-8 h-px mb-5" style={{ background: 'var(--cyber-cyan)' }} />
-                  <p className="text-gray-400 mb-4 leading-relaxed text-sm">{aboutData.bio1}</p>
-                  <p className="text-gray-400 mb-8 leading-relaxed text-sm">{aboutData.bio2}</p>
-                </Reveal>
+              {/* ── CENTER: photo ── */}
+              <Reveal direction="up" className="relative flex justify-center items-end self-end">
+                {/* ground glow */}
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 pointer-events-none"
+                  style={{ width: '90%', height: 60, background: 'radial-gradient(ellipse, rgba(0,212,255,0.2) 0%, transparent 70%)', filter: 'blur(10px)' }} />
 
-                {/* stats */}
-                <Reveal stagger className="grid grid-cols-2 gap-3">
+                {aboutData.profileImage ? (
+                  <div className="relative group">
+                    <img
+                      src={aboutData.profileImage}
+                      alt="Fikral Andhika"
+                      style={{
+                        height: 420,
+                        width: 'auto',
+                        maxWidth: 320,
+                        objectFit: 'contain',
+                        objectPosition: 'bottom',
+                        display: 'block',
+                        filter: 'drop-shadow(0 0 30px rgba(0,212,255,0.15)) drop-shadow(0 -10px 40px rgba(0,212,255,0.05))',
+                        position: 'relative',
+                        zIndex: 1,
+                      }}
+                    />
+                    {isAuthenticated && (
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                        style={{ background: 'rgba(2,4,8,0.6)', backdropFilter: 'blur(4px)' }}>
+                        <button className="btn-cyber-primary text-xs" onClick={() => setShowAboutForm(true)}>
+                          CHANGE PHOTO
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center" style={{ height: 420 }}>
+                    <User size={80} style={{ color: 'rgba(0,212,255,0.15)' }} />
+                    {isAuthenticated && (
+                      <button className="btn-cyber-primary text-xs mt-6" onClick={() => setShowAboutForm(true)}>
+                        UPLOAD PHOTO
+                      </button>
+                    )}
+                  </div>
+                )}
+              </Reveal>
+
+              {/* ── RIGHT: bio2 + stats ── */}
+              <Reveal direction="right" className="p-8 md:p-10 self-center">
+                <p className="text-gray-400 text-sm leading-relaxed mb-8" style={{ maxWidth: 260 }}>
+                  {aboutData.bio2}
+                </p>
+
+                <div className="space-y-4">
                   {aboutData.stats.map((stat, i) => (
-                    <div key={i} className="stat-card">
-                      <p className="font-orbitron font-bold text-2xl mb-1"
-                        style={{ color: i % 2 === 0 ? 'var(--cyber-cyan)' : 'var(--cyber-neon)' }}>
+                    <div key={i} className="flex items-center gap-4">
+                      <span className="font-orbitron font-bold text-xl"
+                        style={{ color: i % 2 === 0 ? 'var(--cyber-cyan)' : 'var(--cyber-neon)', minWidth: 52 }}>
                         {stat.value}
-                      </p>
-                      <p className="font-mono-cyber text-xs" style={{ color: 'rgba(200,214,229,0.4)' }}>
-                        {stat.label}
-                      </p>
+                      </span>
+                      <div>
+                        <div className="w-16 h-px mb-1" style={{ background: i % 2 === 0 ? 'rgba(0,212,255,0.3)' : 'rgba(0,255,136,0.3)' }} />
+                        <span className="font-mono-cyber text-xs" style={{ color: 'rgba(200,214,229,0.4)' }}>
+                          {stat.label}
+                        </span>
+                      </div>
                     </div>
                   ))}
-                </Reveal>
-              </div>
+                </div>
+              </Reveal>
             </div>
           </div>
         </section>
