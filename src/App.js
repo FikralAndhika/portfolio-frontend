@@ -727,7 +727,7 @@ export default function App() {
 
           {/* ── ABOUT HERO LAYOUT ── */}
           <div className="relative overflow-hidden" style={{
-            minHeight: 480,
+            minHeight: 560,
             background: 'transparent',
             border: '1px solid rgba(0,212,255,0.08)',
           }}>
@@ -741,7 +741,7 @@ export default function App() {
             <div className="absolute bottom-4 left-4 pointer-events-none" style={{ width: 24, height: 24, borderBottom: '1px solid rgba(0,212,255,0.4)', borderLeft: '1px solid rgba(0,212,255,0.4)' }} />
             <div className="absolute bottom-4 right-4 pointer-events-none" style={{ width: 24, height: 24, borderBottom: '1px solid rgba(0,212,255,0.4)', borderRight: '1px solid rgba(0,212,255,0.4)' }} />
 
-            <div className="relative grid md:grid-cols-3 items-end h-full" style={{ minHeight: 480 }}>
+            <div className="relative grid md:grid-cols-3 items-center h-full" style={{ minHeight: 560 }}>
 
               {/* ── LEFT: name + bio1 ── */}
               <Reveal direction="left" className="p-8 md:p-10 self-center">
@@ -765,24 +765,24 @@ export default function App() {
               </Reveal>
 
               {/* ── CENTER: photo ── */}
-              <Reveal direction="up" className="relative flex justify-center items-end self-end">
+              <Reveal direction="up" className="relative flex justify-center items-center self-stretch">
                 {/* ground glow */}
                 <div className="absolute bottom-0 left-1/2 -translate-x-1/2 pointer-events-none"
-                  style={{ width: '90%', height: 60, background: 'radial-gradient(ellipse, rgba(0,212,255,0.2) 0%, transparent 70%)', filter: 'blur(10px)' }} />
+                  style={{ width: '90%', height: 80, background: 'radial-gradient(ellipse, rgba(0,212,255,0.25) 0%, transparent 70%)', filter: 'blur(12px)' }} />
 
                 {aboutData.profileImage ? (
-                  <div className="relative group">
+                  <div className="relative group flex justify-center w-full">
                     <img
                       src={aboutData.profileImage}
                       alt="Fikral Andhika"
                       style={{
-                        height: 420,
+                        height: 520,
                         width: 'auto',
-                        maxWidth: 320,
+                        maxWidth: '100%',
                         objectFit: 'contain',
-                        objectPosition: 'bottom',
+                        objectPosition: 'center bottom',
                         display: 'block',
-                        filter: 'drop-shadow(0 0 30px rgba(0,212,255,0.15)) drop-shadow(0 -10px 40px rgba(0,212,255,0.05))',
+                        filter: 'drop-shadow(0 0 40px rgba(0,212,255,0.2)) drop-shadow(0 -10px 60px rgba(0,212,255,0.06))',
                         position: 'relative',
                         zIndex: 1,
                       }}
@@ -797,7 +797,7 @@ export default function App() {
                     )}
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center" style={{ height: 420 }}>
+                  <div className="flex flex-col items-center justify-center" style={{ height: 520 }}>
                     <User size={80} style={{ color: 'rgba(0,212,255,0.15)' }} />
                     {isAuthenticated && (
                       <button className="btn-cyber-primary text-xs mt-6" onClick={() => setShowAboutForm(true)}>
