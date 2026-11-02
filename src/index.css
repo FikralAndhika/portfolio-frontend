@@ -1,3 +1,659 @@
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ============================================
+   BASE RESET & ROOT VARIABLES
+   ============================================ */
+:root {
+  --cyber-black: #020408;
+  --cyber-dark: #060d14;
+  --cyber-navy: #0a1628;
+  --cyber-cyan: #00d4ff;
+  --cyber-neon: #00ff88;
+  --cyber-magenta: #ff006e;
+  --cyber-yellow: #ffbe00;
+  --glow-cyan: rgba(0, 212, 255, 0.4);
+  --glow-neon: rgba(0, 255, 136, 0.4);
+  --glow-magenta: rgba(255, 0, 110, 0.4);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--cyber-black);
+  color: #c8d6e5;
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+  cursor: default;
+}
+
+/* ============================================
+   CUSTOM SCROLLBAR
+   ============================================ */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--cyber-dark);
+  border-left: 1px solid rgba(0, 212, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--cyber-cyan), var(--cyber-neon));
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--cyber-cyan);
+  box-shadow: 0 0 8px var(--glow-cyan);
+}
+
+/* ============================================
+   CUSTOM CURSOR
+   ============================================ */
+.cyber-cursor {
+  cursor: crosshair;
+}
+
+/* ============================================
+   TYPOGRAPHY
+   ============================================ */
+.font-orbitron {
+  font-family: 'Orbitron', sans-serif;
+}
+
+.font-rajdhani {
+  font-family: 'Rajdhani', sans-serif;
+}
+
+.font-mono-cyber {
+  font-family: 'Share Tech Mono', monospace;
+}
+
+/* ============================================
+   NEON TEXT EFFECTS
+   ============================================ */
+.text-neon-cyan {
+  color: var(--cyber-cyan);
+  text-shadow: 0 0 7px var(--cyber-cyan), 0 0 10px var(--cyber-cyan), 0 0 21px var(--cyber-cyan);
+}
+
+.text-neon-green {
+  color: var(--cyber-neon);
+  text-shadow: 0 0 7px var(--cyber-neon), 0 0 10px var(--cyber-neon), 0 0 21px var(--cyber-neon);
+}
+
+.text-neon-magenta {
+  color: var(--cyber-magenta);
+  text-shadow: 0 0 7px var(--cyber-magenta), 0 0 10px var(--cyber-magenta), 0 0 21px var(--cyber-magenta);
+}
+
+/* ============================================
+   GLITCH EFFECT
+   ============================================ */
+.glitch {
+  position: relative;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.glitch::before {
+  color: var(--cyber-cyan);
+  animation: glitch-1 3s infinite linear;
+  clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
+}
+
+.glitch::after {
+  color: var(--cyber-magenta);
+  animation: glitch-2 3s infinite linear;
+  clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
+}
+
+@keyframes glitch-1 {
+  0%, 90%, 100% { transform: translate(0); opacity: 0; }
+  91% { transform: translate(-2px, -1px); opacity: 0.8; }
+  93% { transform: translate(2px, 1px); opacity: 0.8; }
+  95% { transform: translate(-1px, 2px); opacity: 0.8; }
+  97% { transform: translate(1px, -1px); opacity: 0.8; }
+  99% { transform: translate(0); opacity: 0; }
+}
+
+@keyframes glitch-2 {
+  0%, 90%, 100% { transform: translate(0); opacity: 0; }
+  92% { transform: translate(2px, 1px); opacity: 0.8; }
+  94% { transform: translate(-2px, -1px); opacity: 0.8; }
+  96% { transform: translate(1px, -2px); opacity: 0.8; }
+  98% { transform: translate(-1px, 1px); opacity: 0.8; }
+}
+
+/* ============================================
+   CYBER GRID BACKGROUND
+   ============================================ */
+.bg-cyber-grid {
+  background-image:
+    linear-gradient(rgba(0, 212, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.bg-cyber-grid-lg {
+  background-image:
+    linear-gradient(rgba(0, 212, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.07) 1px, transparent 1px);
+  background-size: 80px 80px;
+}
+
+/* ============================================
+   SCANLINE OVERLAY
+   ============================================ */
+.scanlines::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ============================================
+   GLASSMORPHISM PANELS
+   ============================================ */
+.cyber-panel {
+  background: rgba(6, 13, 20, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 212, 255, 0.12);
+  box-shadow:
+    0 0 0 1px rgba(0, 212, 255, 0.05),
+    0 8px 32px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(0, 212, 255, 0.08);
+}
+
+.cyber-panel-bright {
+  background: rgba(10, 22, 40, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  box-shadow:
+    0 0 20px rgba(0, 212, 255, 0.05),
+    0 8px 32px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(0, 212, 255, 0.1);
+}
+
+/* ============================================
+   NEON BORDERS & CORNERS
+   ============================================ */
+.corner-bracket {
+  position: relative;
+}
+
+.corner-bracket::before,
+.corner-bracket::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-color: var(--cyber-cyan);
+  border-style: solid;
+  opacity: 0.7;
+}
+
+.corner-bracket::before {
+  top: 0;
+  left: 0;
+  border-width: 2px 0 0 2px;
+}
+
+.corner-bracket::after {
+  bottom: 0;
+  right: 0;
+  border-width: 0 2px 2px 0;
+}
+
+/* ============================================
+   CYBER BUTTONS
+   ============================================ */
+.btn-cyber-primary {
+  position: relative;
+  background: transparent;
+  border: 1px solid var(--cyber-cyan);
+  color: var(--cyber-cyan);
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 12px 32px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+}
+
+.btn-cyber-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.15), transparent);
+  transition: left 0.4s ease;
+}
+
+.btn-cyber-primary:hover::before {
+  left: 100%;
+}
+
+.btn-cyber-primary:hover {
+  background: rgba(0, 212, 255, 0.1);
+  box-shadow: 0 0 15px var(--glow-cyan), inset 0 0 15px rgba(0, 212, 255, 0.05);
+  text-shadow: 0 0 8px var(--cyber-cyan);
+}
+
+.btn-cyber-secondary {
+  position: relative;
+  background: rgba(0, 255, 136, 0.05);
+  border: 1px solid var(--cyber-neon);
+  color: var(--cyber-neon);
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 12px 32px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+}
+
+.btn-cyber-secondary:hover {
+  background: rgba(0, 255, 136, 0.15);
+  box-shadow: 0 0 15px var(--glow-neon), inset 0 0 15px rgba(0, 255, 136, 0.05);
+  text-shadow: 0 0 8px var(--cyber-neon);
+}
+
+/* ============================================
+   SECTION HEADING STYLE
+   ============================================ */
+.section-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--cyber-cyan);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.section-title {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ffffff 30%, var(--cyber-cyan) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ============================================
+   SKILL BAR
+   ============================================ */
+.skill-bar-track {
+  background: rgba(0, 212, 255, 0.06);
+  border: 1px solid rgba(0, 212, 255, 0.12);
+  height: 6px;
+  border-radius: 0;
+  overflow: hidden;
+  clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
+}
+
+.skill-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--cyber-cyan), var(--cyber-neon));
+  position: relative;
+  box-shadow: 0 0 8px var(--glow-cyan);
+  transition: width 1s ease;
+}
+
+.skill-bar-fill::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 3px;
+  height: 100%;
+  background: white;
+  box-shadow: 0 0 6px var(--cyber-cyan);
+}
+
+/* ============================================
+   NAV LINKS
+   ============================================ */
+.nav-link {
+  position: relative;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 500;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(200, 214, 229, 0.6);
+  transition: color 0.3s ease;
+  padding: 4px 0;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--cyber-cyan), var(--cyber-neon));
+  transition: width 0.3s ease;
+  box-shadow: 0 0 4px var(--glow-cyan);
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: var(--cyber-cyan);
+  text-shadow: 0 0 8px var(--glow-cyan);
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+  width: 100%;
+}
+
+/* ============================================
+   PROJECT CARD
+   ============================================ */
+.project-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 30px rgba(0, 212, 255, 0.1), 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.project-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyber-cyan), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.project-card:hover::before {
+  opacity: 1;
+}
+
+/* ============================================
+   HUD DECORATIONS
+   ============================================ */
+.hud-corner-tl {
+  border-top: 2px solid var(--cyber-cyan);
+  border-left: 2px solid var(--cyber-cyan);
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  opacity: 0.6;
+}
+
+.hud-corner-br {
+  border-bottom: 2px solid var(--cyber-cyan);
+  border-right: 2px solid var(--cyber-cyan);
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  opacity: 0.6;
+}
+
+/* ============================================
+   ANIMATED DIVIDER
+   ============================================ */
+.cyber-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyber-cyan), var(--cyber-neon), transparent);
+  opacity: 0.4;
+  position: relative;
+}
+
+.cyber-divider::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  background: var(--cyber-cyan);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  box-shadow: 0 0 8px var(--cyber-cyan);
+}
+
+/* ============================================
+   STAT CARD
+   ============================================ */
+.stat-card {
+  position: relative;
+  background: rgba(0, 212, 255, 0.03);
+  border: 1px solid rgba(0, 212, 255, 0.1);
+  padding: 16px;
+  clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  background: rgba(0, 212, 255, 0.07);
+  border-color: rgba(0, 212, 255, 0.3);
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.1);
+}
+
+/* ============================================
+   TAG BADGE
+   ============================================ */
+.cyber-tag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+  padding: 3px 10px;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  color: var(--cyber-cyan);
+  background: rgba(0, 212, 255, 0.05);
+  clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
+  transition: all 0.2s ease;
+}
+
+.cyber-tag:hover {
+  background: rgba(0, 212, 255, 0.12);
+  border-color: rgba(0, 212, 255, 0.4);
+}
+
+/* ============================================
+   INPUT FIELDS
+   ============================================ */
+.cyber-input {
+  background: rgba(6, 13, 20, 0.8);
+  border: 1px solid rgba(0, 212, 255, 0.15);
+  color: #c8d6e5;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.9rem;
+  padding: 12px 16px;
+  width: 100%;
+  outline: none;
+  transition: all 0.3s ease;
+  clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+}
+
+.cyber-input:focus {
+  border-color: var(--cyber-cyan);
+  box-shadow: 0 0 0 1px rgba(0, 212, 255, 0.2), 0 0 15px rgba(0, 212, 255, 0.05);
+  color: white;
+}
+
+.cyber-input::placeholder {
+  color: rgba(200, 214, 229, 0.3);
+}
+
+textarea.cyber-input {
+  clip-path: none;
+  resize: none;
+}
+
+/* ============================================
+   LOADING SCREEN
+   ============================================ */
+.loading-ring {
+  border: 2px solid rgba(0, 212, 255, 0.1);
+  border-top-color: var(--cyber-cyan);
+  border-right-color: var(--cyber-neon);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+/* ============================================
+   EXPERIENCE TIMELINE
+   ============================================ */
+.timeline-line {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(180deg, var(--cyber-cyan), var(--cyber-neon), transparent);
+  opacity: 0.3;
+}
+
+.timeline-dot {
+  width: 10px;
+  height: 10px;
+  background: var(--cyber-cyan);
+  box-shadow: 0 0 10px var(--glow-cyan);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  flex-shrink: 0;
+}
+
+/* ============================================
+   MODAL OVERLAY
+   ============================================ */
+.cyber-modal-overlay {
+  background: rgba(2, 4, 8, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* ============================================
+   CERT CARD
+   ============================================ */
+.cert-card {
+  position: relative;
+  background: rgba(6, 13, 20, 0.7);
+  border: 1px solid rgba(0, 212, 255, 0.1);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.cert-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--cyber-cyan), var(--cyber-neon));
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+  transform-origin: left;
+}
+
+.cert-card:hover {
+  border-color: rgba(0, 212, 255, 0.3);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.08);
+  transform: translateY(-3px);
+}
+
+.cert-card:hover::after {
+  transform: scaleX(1);
+}
+
+/* ============================================
+   FLICKER ANIMATION FOR ACCENTS
+   ============================================ */
+@keyframes flicker-light {
+  0%, 19.999%, 22%, 62.999%, 64%, 64.999%, 70%, 100% { opacity: 0.99; }
+  20%, 21.999%, 63%, 63.999%, 65%, 69.999% { opacity: 0.4; }
+}
+
+.flicker {
+  animation: flicker-light 4s linear infinite;
+}
+
+/* ============================================
+   MOBILE MENU
+   ============================================ */
+.mobile-menu-overlay {
+  background: rgba(2, 4, 8, 0.97);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* ============================================
+   SCROLL INDICATOR
+   ============================================ */
+.scroll-indicator {
+  width: 2px;
+  height: 40px;
+  background: linear-gradient(180deg, var(--cyber-cyan), transparent);
+  animation: scroll-pulse 2s ease-in-out infinite;
+}
+
+@keyframes scroll-pulse {
+  0%, 100% { opacity: 1; transform: scaleY(1); }
+  50% { opacity: 0.3; transform: scaleY(0.5); }
+}
+
+/* ============================================
+   UTILITY OVERRIDES
+   ============================================ */
+.select-cyber option {
+  background: #060d14;
+  color: #c8d6e5;
+}

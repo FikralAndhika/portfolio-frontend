@@ -1,751 +1,691 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, X, Eye, Github, ExternalLink, Briefcase, Mail, Linkedin, AlertCircle, Edit2, Trash2, Menu, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  Plus, X, Eye, Github, ExternalLink, Briefcase, Mail, Linkedin,
+  AlertCircle, Edit2, Trash2, Menu, ChevronLeft, ChevronRight,
+  Shield, Cpu, Zap, Terminal, Radio, Lock, User, Code2
+} from 'lucide-react';
 import axios from 'axios';
 
-// ✅ FIX: Update API URL untuk production
 const API_URL = process.env.REACT_APP_API_URL || 'https://portfolio-backend1-sooty.vercel.app';
 
-// 🎨 Image Carousel Component - Inline
+/* ─────────────────────────────────────────
+   HELPERS
+───────────────────────────────────────── */
+const SectionHeader = ({ label, title, accent = 'cyan' }) => (
+  <div className="mb-12">
+    <p className="section-label mb-2">// {label}</p>
+    <h3 className={`section-title text-3xl md:text-4xl font-orbitron font-bold`}>{title}</h3>
+    <div className="cyber-divider mt-4 max-w-xs" />
+  </div>
+);
+
+const HudCorners = () => (
+  <>
+    <div className="hud-corner-tl" />
+    <div className="hud-corner-br" />
+  </>
+);
+
+/* ─────────────────────────────────────────
+   IMAGE CAROUSEL
+───────────────────────────────────────── */
 const ImageCarousel = ({ images, projectTitle }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
 
-  const prevImage = () => {
-    setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
-  };
+  const prev = () => setCurrentIndex(i => (i === 0 ? images.length - 1 : i - 1));
+  const next = () => setCurrentIndex(i => (i === images.length - 1 ? 0 : i + 1));
 
-  const nextImage = () => {
-    setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
-  };
-
-  const handleTouchStart = (e) => {
-    setTouchStart(e.touches[0].clientX);
-  };
-
-  const handleTouchMove = (e) => {
-    setTouchEnd(e.touches[0].clientX);
-  };
-
-  const handleTouchEnd = () => {
+  const onTouchStart = e => setTouchStart(e.touches[0].clientX);
+  const onTouchMove  = e => setTouchEnd(e.touches[0].clientX);
+  const onTouchEnd   = () => {
     if (!touchStart || !touchEnd) return;
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > 50;
-    const isRightSwipe = distance < -50;
-    if (isLeftSwipe) nextImage();
-    if (isRightSwipe) prevImage();
-    setTouchStart(0);
-    setTouchEnd(0);
+    const d = touchStart - touchEnd;
+    if (d > 50) next();
+    if (d < -50) prev();
+    setTouchStart(0); setTouchEnd(0);
   };
 
-  if (!images || images.length === 0) {
+  if (!images || images.length === 0)
     return (
-      <div className="w-full h-64 bg-gray-800 flex items-center justify-center rounded-t-2xl">
-        <p className="text-gray-400">No image available</p>
+      <div className="w-full h-64 bg-cyber-navy flex items-center justify-center">
+        <p className="font-mono-cyber text-sm" style={{ color: 'rgba(0,212,255,0.4)' }}>
+          [ NO IMAGE DATA ]
+        </p>
       </div>
     );
-  };
 
-  if (images.length === 1) {
+  if (images.length === 1)
     return (
-      <img 
-        src={images[0]} 
-        alt={projectTitle} 
-        className="w-full h-96 object-contain bg-slate-900 rounded-t-2xl"
-        onError={(e) => {
-          e.target.src = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80';
-        }}
+      <img
+        src={images[0]} alt={projectTitle}
+        className="w-full h-96 object-contain bg-cyber-dark"
+        onError={e => { e.target.src = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80'; }}
       />
     );
-  }
 
   return (
     <div className="relative">
-      <div 
-        className="relative h-96 overflow-hidden rounded-t-2xl group"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
+      <div
+        className="relative h-96 overflow-hidden group"
+        onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}
       >
-        <img 
-          src={images[currentIndex]} 
-          alt={`${projectTitle} ${currentIndex + 1}`} 
-          className="w-full h-full object-contain bg-slate-900 transition-transform duration-500"
-          onError={(e) => {
-            e.target.src = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80';
-          }}
+        <img
+          src={images[currentIndex]} alt={`${projectTitle} ${currentIndex + 1}`}
+          className="w-full h-full object-contain bg-cyber-dark transition-all duration-500"
+          onError={e => { e.target.src = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80'; }}
         />
-        
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-cyber-black via-transparent to-transparent" />
 
-        <button
-          onClick={prevImage}
-          aria-label="Previous image"
-          className="absolute left-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full transition-all opacity-0 group-hover:opacity-100"
-        >
-          <ChevronLeft size={24} />
+        <button onClick={prev} aria-label="Previous image"
+          className="absolute left-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity btn-cyber-primary px-3 py-2 text-xs">
+          <ChevronLeft size={18} />
         </button>
-        
-        <button
-          onClick={nextImage}
-          aria-label="Next image"
-          className="absolute right-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full transition-all opacity-0 group-hover:opacity-100"
-        >
-          <ChevronRight size={24} />
+        <button onClick={next} aria-label="Next image"
+          className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity btn-cyber-primary px-3 py-2 text-xs">
+          <ChevronRight size={18} />
         </button>
 
-        <div className="absolute bottom-4 right-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm">
-          {currentIndex + 1} / {images.length}
+        <div className="absolute bottom-3 right-3 font-mono-cyber text-xs px-2 py-1"
+          style={{ background: 'rgba(2,4,8,0.7)', color: 'var(--cyber-cyan)', border: '1px solid rgba(0,212,255,0.2)' }}>
+          {currentIndex + 1}/{images.length}
         </div>
 
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
           {images.map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => setCurrentIndex(idx)}
-              aria-label={`Go to image ${idx + 1}`}
-              className={`w-2 h-2 rounded-full transition-all ${
-                idx === currentIndex 
-                  ? 'bg-white w-6' 
-                  : 'bg-white bg-opacity-50 hover:bg-opacity-75'
-              }`}
-            />
+            <button key={idx} onClick={() => setCurrentIndex(idx)} aria-label={`Image ${idx + 1}`}
+              className={`h-1 rounded-none transition-all ${idx === currentIndex ? 'w-6 bg-cyber-cyan' : 'w-2 bg-white opacity-30'}`}
+              style={idx === currentIndex ? { boxShadow: '0 0 6px var(--cyber-cyan)' } : {}} />
           ))}
         </div>
       </div>
 
-      {images.length > 1 && (
-        <div className="flex gap-2 p-4 overflow-x-auto bg-slate-900 bg-opacity-50">
-          {images.map((img, idx) => (
-            <button
-              key={idx}
-              onClick={() => setCurrentIndex(idx)}
-              aria-label={`Thumbnail ${idx + 1}`}
-              className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
-                idx === currentIndex 
-                  ? 'border-purple-500 scale-105' 
-                  : 'border-transparent opacity-60 hover:opacity-100'
-              }`}
-            >
-              <img 
-                src={img} 
-                alt="" 
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.target.src = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80';
-                }}
-              />
-            </button>
-          ))}
-        </div>
-      )}
+      <div className="flex gap-2 p-3 overflow-x-auto bg-cyber-dark" style={{ borderTop: '1px solid rgba(0,212,255,0.08)' }}>
+        {images.map((img, idx) => (
+          <button key={idx} onClick={() => setCurrentIndex(idx)} aria-label={`Thumbnail ${idx + 1}`}
+            className={`flex-shrink-0 w-16 h-16 overflow-hidden transition-all`}
+            style={{
+              border: idx === currentIndex ? '1px solid var(--cyber-cyan)' : '1px solid rgba(0,212,255,0.1)',
+              boxShadow: idx === currentIndex ? '0 0 8px var(--glow-cyan)' : 'none',
+              opacity: idx === currentIndex ? 1 : 0.5
+            }}>
+            <img src={img} alt="" className="w-full h-full object-cover"
+              onError={e => { e.target.src = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80'; }} />
+          </button>
+        ))}
+      </div>
     </div>
   );
 };
 
+/* ─────────────────────────────────────────
+   MAIN APP
+───────────────────────────────────────── */
 export default function App() {
+  /* ── state ── */
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [activeSection, setActiveSection] = useState('home');
-  const [saveStatus, setSaveStatus] = useState('');
-  
-  const correctPassword = 'admin123';
-  
-  const [projects, setProjects] = useState([]);
-  const [aboutData, setAboutData] = useState({
-    profileImage: "",
-    bio1: "Saya adalah seorang Web Developer dengan passion dalam menciptakan aplikasi web yang inovatif dan user-friendly.",
-    bio2: "Saya selalu antusias untuk belajar teknologi baru dan mengikuti perkembangan tren di dunia web development.",
-    stats: [
-      { label: "Years Experience", value: "2+" },
-      { label: "Projects Completed", value: "10+" },
-      { label: "Happy Clients", value: "15+" },
-      { label: "Technologies", value: "10+" }
-    ]
-  });
-  const [skills, setSkills] = useState({});
-  const [experiences, setExperiences] = useState([]);
-  const [certifications, setCertifications] = useState([]);
-
-  const [showLogin, setShowLogin] = useState(false);
-  const [showProjectForm, setShowProjectForm] = useState(false);
-  const [showAboutForm, setShowAboutForm] = useState(false);
-  const [showSkillForm, setShowSkillForm] = useState(false);
-  const [showExpForm, setShowExpForm] = useState(false);
-  const [showCertForm, setShowCertForm] = useState(false);
-  const [selectedProject, setSelectedProject] = useState(null);
-  const [editingProject, setEditingProject] = useState(null);
-  const [editingExp, setEditingExp] = useState(null);
-  const [editingCert, setEditingCert] = useState(null);
-  const [editingSkillCategory, setEditingSkillCategory] = useState('');
+  const [password, setPassword]               = useState('');
+  const [error, setError]                     = useState('');
+  const [loading, setLoading]                 = useState(true);
+  const [activeSection, setActiveSection]     = useState('home');
+  const [saveStatus, setSaveStatus]           = useState('');
+  const [showMobileMenu, setShowMobileMenu]   = useState(false);
   const [projectCategory, setProjectCategory] = useState('all');
-  
-  const [projectForm, setProjectForm] = useState({
-    title: '', 
-    description: '', 
-    images: [],
-    tags: '', 
-    github: '', 
-    demo: '', 
-    category: 'it'
-  });
-  
-  const [expForm, setExpForm] = useState({
-    year: '', position: '', company: '', description: '', achievements: ''
-  });
-  const [certForm, setCertForm] = useState({
-    title: '', issuer: '', year: '', icon: '🎓'
-  });
-  const [skillForm, setSkillForm] = useState({
-    name: '', level: 50
-  });
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [editingProject, setEditingProject]   = useState(null);
+  const [editingExp, setEditingExp]           = useState(null);
+  const [editingCert, setEditingCert]         = useState(null);
+  const [editingSkillCategory, setEditingSkillCategory] = useState('');
+  const [showLogin, setShowLogin]             = useState(false);
+  const [showProjectForm, setShowProjectForm] = useState(false);
+  const [showAboutForm, setShowAboutForm]     = useState(false);
+  const [showSkillForm, setShowSkillForm]     = useState(false);
+  const [showExpForm, setShowExpForm]         = useState(false);
+  const [showCertForm, setShowCertForm]       = useState(false);
 
+  const correctPassword = 'admin123';
+
+  const [projects, setProjects]           = useState([]);
+  const [skills, setSkills]               = useState({});
+  const [experiences, setExperiences]     = useState([]);
+  const [certifications, setCertifications] = useState([]);
+  const [aboutData, setAboutData]         = useState({
+    profileImage: '',
+    bio1: 'Saya adalah seorang Web Developer dengan passion dalam menciptakan aplikasi web yang inovatif dan user-friendly.',
+    bio2: 'Saya selalu antusias untuk belajar teknologi baru dan mengikuti perkembangan tren di dunia web development.',
+    stats: [
+      { label: 'Years Experience', value: '2+' },
+      { label: 'Projects Completed', value: '10+' },
+      { label: 'Happy Clients', value: '15+' },
+      { label: 'Technologies', value: '10+' },
+    ],
+  });
+
+  const [projectForm, setProjectForm] = useState({
+    title: '', description: '', images: [], tags: '', github: '', demo: '', category: 'it',
+  });
+  const [expForm, setExpForm]   = useState({ year: '', position: '', company: '', description: '', achievements: '' });
+  const [certForm, setCertForm] = useState({ title: '', issuer: '', year: '', icon: '🎓' });
+  const [skillForm, setSkillForm] = useState({ name: '', level: 50 });
+
+  /* ── data loading ── */
   const loadAllData = async () => {
     try {
       setLoading(true);
-      
-      const projectsRes = await axios.get(`${API_URL}/api/projects`);
-      console.log('📥 Projects response:', projectsRes.data);
-      
-      const normalizedProjects = Array.isArray(projectsRes.data) 
-        ? projectsRes.data.map(project => ({
-            ...project,
-            images: Array.isArray(project.images) 
-              ? project.images 
-              : (project.images ? [project.images] : []),
-            tags: Array.isArray(project.tags) ? project.tags : []
+      const [projRes, aboutRes, skillsRes, expRes, certRes] = await Promise.all([
+        axios.get(`${API_URL}/api/projects`),
+        axios.get(`${API_URL}/api/about`),
+        axios.get(`${API_URL}/api/skills`),
+        axios.get(`${API_URL}/api/experiences`),
+        axios.get(`${API_URL}/api/certifications`),
+      ]);
+
+      const normalizedProjects = Array.isArray(projRes.data)
+        ? projRes.data.map(p => ({
+            ...p,
+            images: Array.isArray(p.images) ? p.images : p.images ? [p.images] : [],
+            tags: Array.isArray(p.tags) ? p.tags : [],
           }))
         : [];
-      
       setProjects(normalizedProjects);
-      console.log('✅ Normalized projects:', normalizedProjects);
 
-      const aboutRes = await axios.get(`${API_URL}/api/about`);
       if (aboutRes.data) {
-        setAboutData({
-          profileImage: aboutRes.data.profile_image || aboutRes.data.profileImage || aboutData.profileImage,
-          bio1: aboutRes.data.bio1 || aboutData.bio1,
-          bio2: aboutRes.data.bio2 || aboutData.bio2,
-          stats: aboutRes.data.stats || aboutData.stats
-        });
+        setAboutData(prev => ({
+          profileImage: aboutRes.data.profile_image || aboutRes.data.profileImage || prev.profileImage,
+          bio1: aboutRes.data.bio1 || prev.bio1,
+          bio2: aboutRes.data.bio2 || prev.bio2,
+          stats: aboutRes.data.stats || prev.stats,
+        }));
       }
-
-      const skillsRes = await axios.get(`${API_URL}/api/skills`);
       setSkills(skillsRes.data || {});
-
-      const expRes = await axios.get(`${API_URL}/api/experiences`);
       setExperiences(Array.isArray(expRes.data) ? expRes.data : []);
-
-      const certRes = await axios.get(`${API_URL}/api/certifications`);
       setCertifications(Array.isArray(certRes.data) ? certRes.data : []);
-
-      console.log('✅ All data loaded successfully');
     } catch (err) {
-      console.error('❌ Error loading data:', err);
-      setProjects([]);
-      setSkills({});
-      setExperiences([]);
-      setCertifications([]);
-      setSaveStatus('❌ Error loading data');
+      console.error('Error loading data:', err);
+      setSaveStatus('[ ERROR ] Failed to load data');
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ FIX: Added eslint-disable comment for missing dependency
-  useEffect(() => {
-    loadAllData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { loadAllData(); }, []);
 
   useEffect(() => {
     const handleScroll = () => {
       const sections = ['home', 'about', 'skills', 'experience', 'certifications', 'projects'];
-      const scrollPosition = window.scrollY + 150;
-
+      const pos = window.scrollY + 150;
       for (let i = sections.length - 1; i >= 0; i--) {
-        const section = document.getElementById(sections[i]);
-        if (section && section.offsetTop <= scrollPosition) {
-          setActiveSection(sections[i]);
-          break;
-        }
+        const el = document.getElementById(sections[i]);
+        if (el && el.offsetTop <= pos) { setActiveSection(sections[i]); break; }
       }
     };
-
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const scrollToSection = (id) => {
-    const element = document.getElementById(id);
-    if (element) {
-      const headerOffset = 80;
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
-    }
+  const scrollTo = (id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 80, behavior: 'smooth' });
   };
 
+  const flash = (msg) => { setSaveStatus(msg); setTimeout(() => setSaveStatus(''), 3000); };
+
+  /* ── auth ── */
   const handleLogin = () => {
     setError('');
-    if (!password.trim()) {
-      setError('Password wajib diisi!');
-      return;
-    }
+    if (!password.trim()) { setError('Password required.'); return; }
     if (password === correctPassword) {
-      setIsAuthenticated(true);
-      setShowLogin(false);
-      setPassword('');
+      setIsAuthenticated(true); setShowLogin(false); setPassword('');
     } else {
-      setError('Password salah!');
-      setPassword('');
+      setError('Access denied. Invalid credentials.'); setPassword('');
     }
   };
 
+  /* ── image upload ── */
   const handleImageUpload = (e, callback) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (file.size > 5000000) {
-      alert('Max 5MB!');
-      return;
-    }
-    if (!file.type.startsWith('image/')) {
-      alert('Harus gambar!');
-      return;
-    }
+    if (file.size > 5000000) { alert('Max 5MB!'); return; }
+    if (!file.type.startsWith('image/')) { alert('Images only!'); return; }
     const reader = new FileReader();
     reader.onloadend = () => callback(reader.result);
-    reader.onerror = () => alert('Gagal upload!');
+    reader.onerror  = () => alert('Upload failed!');
     reader.readAsDataURL(file);
   };
 
+  /* ── about ── */
   const handleSaveAbout = async () => {
     try {
-      const dataToSend = {
+      await axios.put(`${API_URL}/api/about`, {
         profileImage: aboutData.profileImage,
-        bio1: aboutData.bio1,
-        bio2: aboutData.bio2,
-        stats: aboutData.stats
-      };
-      
-      console.log('💾 Saving About data...', dataToSend);
-      
-      const response = await axios.put(`${API_URL}/api/about`, dataToSend);
-      console.log('✅ About saved successfully:', response.data);
-      
-      setSaveStatus('✓ About updated successfully!');
+        bio1: aboutData.bio1, bio2: aboutData.bio2, stats: aboutData.stats,
+      });
+      flash('[ OK ] Profile updated');
       setShowAboutForm(false);
-      
       await loadAllData();
-      
-      setTimeout(() => setSaveStatus(''), 3000);
     } catch (err) {
-      console.error('❌ Error saving about:', err.response?.data || err.message);
-      alert('Gagal menyimpan data! Check console untuk detail.');
+      console.error(err); alert('Save failed!');
     }
   };
 
+  /* ── projects ── */
   const handleAddProject = async () => {
     setError('');
-    
-    if (!projectForm.title.trim()) {
-      setError('Title wajib diisi!');
-      return;
-    }
-    
-    if (!projectForm.description.trim()) {
-      setError('Description wajib diisi!');
-      return;
-    }
-    
-    if (projectForm.images.length === 0) {
-      setError('Minimal 1 image harus diupload!');
-      return;
-    }
-
+    if (!projectForm.title.trim())       { setError('Title required.'); return; }
+    if (!projectForm.description.trim()) { setError('Description required.'); return; }
+    if (!projectForm.images.length)      { setError('At least 1 image required.'); return; }
     try {
-      const projectData = {
+      const data = {
         title: projectForm.title.trim(),
         description: projectForm.description.trim(),
         images: projectForm.images,
-        tags: projectForm.tags
-          .split(',')
-          .map(t => t.trim())
-          .filter(Boolean),
+        tags: projectForm.tags.split(',').map(t => t.trim()).filter(Boolean),
         github: projectForm.github.trim(),
         demo: projectForm.demo.trim(),
-        category: projectForm.category
+        category: projectForm.category,
       };
-
-      console.log('🔍 Sending project data:', projectData);
-
       if (editingProject) {
-        const url = `${API_URL}/api/projects?id=${editingProject.id}`;
-        const response = await axios.put(url, projectData);
-        console.log('✅ Update response:', response.data);
-        setSaveStatus('✓ Project updated');
-        setEditingProject(null);
+        await axios.put(`${API_URL}/api/projects?id=${editingProject.id}`, data);
+        flash('[ OK ] Project updated'); setEditingProject(null);
       } else {
-        const url = `${API_URL}/api/projects`;
-        const response = await axios.post(url, projectData);
-        console.log('✅ Create response:', response.data);
-        setSaveStatus('✓ Project added');
+        await axios.post(`${API_URL}/api/projects`, data);
+        flash('[ OK ] Project added');
       }
-
       await loadAllData();
-      
-      setProjectForm({ 
-        title: '', 
-        description: '', 
-        images: [],
-        tags: '', 
-        github: '', 
-        demo: '', 
-        category: 'it' 
-      });
-      
+      setProjectForm({ title: '', description: '', images: [], tags: '', github: '', demo: '', category: 'it' });
       setShowProjectForm(false);
-      setTimeout(() => setSaveStatus(''), 2000);
-      
     } catch (err) {
-      console.error('❌ Error saving project:', err);
-      setError(err.response?.data?.error || 'Gagal menyimpan project!');
-      alert(`Error: ${err.response?.data?.error || err.message}`);
+      console.error(err); setError(err.response?.data?.error || 'Save failed!');
     }
   };
 
   const handleEditProject = (project) => {
-    console.log('✏️ Editing project:', project);
-    
     setEditingProject(project);
-    
-    let imagesArray = [];
-    if (Array.isArray(project.images)) {
-      imagesArray = [...project.images];
-    } else if (project.images) {
-      imagesArray = [project.images];
-    }
-    
-    const formData = {
-      title: project.title,
-      description: project.description,
-      images: imagesArray,
+    setProjectForm({
+      title: project.title, description: project.description,
+      images: Array.isArray(project.images) ? [...project.images] : project.images ? [project.images] : [],
       tags: Array.isArray(project.tags) ? project.tags.join(', ') : '',
-      github: project.github || '',
-      demo: project.demo || '',
-      category: project.category || 'it'
-    };
-    
-    setProjectForm(formData);
+      github: project.github || '', demo: project.demo || '',
+      category: project.category || 'it',
+    });
     setShowProjectForm(true);
   };
 
   const handleDeleteProject = async (id) => {
-    if (window.confirm('Hapus project ini?')) {
-      try {
-        await axios.delete(`${API_URL}/api/projects?id=${id}`);
-        setSaveStatus('✓ Project deleted');
-        await loadAllData();
-        setTimeout(() => setSaveStatus(''), 2000);
-      } catch (err) {
-        console.error('Error deleting project:', err);
-        alert('Gagal menghapus project!');
-      }
-    }
+    if (!window.confirm('Delete this project?')) return;
+    try {
+      await axios.delete(`${API_URL}/api/projects?id=${id}`);
+      flash('[ OK ] Project deleted'); await loadAllData();
+    } catch (err) { console.error(err); alert('Delete failed!'); }
   };
 
+  /* ── experience ── */
   const handleAddExperience = async () => {
     setError('');
-    if (!expForm.position.trim() || !expForm.company.trim()) {
-      setError('Position dan Company wajib diisi!');
-      return;
-    }
-    
+    if (!expForm.position.trim() || !expForm.company.trim()) { setError('Position and Company required.'); return; }
     try {
-      const expData = {
-        year: expForm.year.trim(),
-        position: expForm.position.trim(),
-        company: expForm.company.trim(),
-        description: expForm.description.trim(),
-        achievements: expForm.achievements.split('\n').map(a => a.trim()).filter(Boolean)
+      const data = {
+        year: expForm.year.trim(), position: expForm.position.trim(),
+        company: expForm.company.trim(), description: expForm.description.trim(),
+        achievements: expForm.achievements.split('\n').map(a => a.trim()).filter(Boolean),
       };
-
       if (editingExp) {
-        await axios.put(`${API_URL}/api/experiences?id=${editingExp.id}`, expData);
-        setSaveStatus('✓ Experience updated');
-        setEditingExp(null);
+        await axios.put(`${API_URL}/api/experiences?id=${editingExp.id}`, data);
+        flash('[ OK ] Experience updated'); setEditingExp(null);
       } else {
-        await axios.post(`${API_URL}/api/experiences`, expData);
-        setSaveStatus('✓ Experience added');
+        await axios.post(`${API_URL}/api/experiences`, data);
+        flash('[ OK ] Experience added');
       }
-
       await loadAllData();
       setExpForm({ year: '', position: '', company: '', description: '', achievements: '' });
       setShowExpForm(false);
-      setTimeout(() => setSaveStatus(''), 2000);
-    } catch (err) {
-      console.error('Error saving experience:', err);
-      setError('Gagal menyimpan experience!');
-    }
+    } catch (err) { console.error(err); setError('Save failed!'); }
   };
 
   const handleEditExperience = (exp) => {
     setEditingExp(exp);
-    setExpForm({
-      year: exp.year,
-      position: exp.position,
-      company: exp.company,
-      description: exp.description,
-      achievements: exp.achievements.join('\n')
-    });
+    setExpForm({ year: exp.year, position: exp.position, company: exp.company,
+      description: exp.description, achievements: exp.achievements.join('\n') });
     setShowExpForm(true);
   };
 
   const handleDeleteExperience = async (id) => {
-    if (window.confirm('Hapus experience ini?')) {
-      try {
-        await axios.delete(`${API_URL}/api/experiences?id=${id}`);
-        setSaveStatus('✓ Experience deleted');
-        await loadAllData();
-        setTimeout(() => setSaveStatus(''), 2000);
-      } catch (err) {
-        console.error('Error deleting experience:', err);
-        alert('Gagal menghapus experience!');
-      }
-    }
+    if (!window.confirm('Delete this experience?')) return;
+    try {
+      await axios.delete(`${API_URL}/api/experiences?id=${id}`);
+      flash('[ OK ] Experience deleted'); await loadAllData();
+    } catch (err) { console.error(err); }
   };
 
+  /* ── certifications ── */
   const handleAddCertification = async () => {
     setError('');
-    if (!certForm.title.trim() || !certForm.issuer.trim()) {
-      setError('Title dan Issuer wajib diisi!');
-      return;
-    }
-    
+    if (!certForm.title.trim() || !certForm.issuer.trim()) { setError('Title and Issuer required.'); return; }
     try {
       if (editingCert) {
         await axios.put(`${API_URL}/api/certifications?id=${editingCert.id}`, certForm);
-        setSaveStatus('✓ Certification updated');
-        setEditingCert(null);
+        flash('[ OK ] Certification updated'); setEditingCert(null);
       } else {
         await axios.post(`${API_URL}/api/certifications`, certForm);
-        setSaveStatus('✓ Certification added');
+        flash('[ OK ] Certification added');
       }
-
       await loadAllData();
       setCertForm({ title: '', issuer: '', year: '', icon: '🎓' });
       setShowCertForm(false);
-      setTimeout(() => setSaveStatus(''), 2000);
-    } catch (err) {
-      console.error('Error saving certification:', err);
-      setError('Gagal menyimpan certification!');
-    }
+    } catch (err) { console.error(err); setError('Save failed!'); }
   };
 
   const handleEditCertification = (cert) => {
     setEditingCert(cert);
-    setCertForm({
-      title: cert.title,
-      issuer: cert.issuer,
-      year: cert.year,
-      icon: cert.icon
-    });
+    setCertForm({ title: cert.title, issuer: cert.issuer, year: cert.year, icon: cert.icon });
     setShowCertForm(true);
   };
 
   const handleDeleteCertification = async (id) => {
-    if (window.confirm('Hapus certification ini?')) {
-      try {
-        await axios.delete(`${API_URL}/api/certifications?id=${id}`);
-        setSaveStatus('✓ Certification deleted');
-        await loadAllData();
-        setTimeout(() => setSaveStatus(''), 2000);
-      } catch (err) {
-        console.error('Error deleting certification:', err);
-        alert('Gagal menghapus certification!');
-      }
-    }
+    if (!window.confirm('Delete this certification?')) return;
+    try {
+      await axios.delete(`${API_URL}/api/certifications?id=${id}`);
+      flash('[ OK ] Certification deleted'); await loadAllData();
+    } catch (err) { console.error(err); }
   };
 
+  /* ── skills ── */
   const handleAddSkill = async () => {
     setError('');
-    if (!skillForm.name.trim()) {
-      setError('Nama skill wajib diisi!');
-      return;
-    }
-
+    if (!skillForm.name.trim()) { setError('Skill name required.'); return; }
     try {
       await axios.post(`${API_URL}/api/skills`, {
-        category: editingSkillCategory,
-        name: skillForm.name,
-        level: skillForm.level
+        category: editingSkillCategory, name: skillForm.name, level: skillForm.level,
       });
-      
-      setSaveStatus('✓ Skill added');
-      await loadAllData();
-      setSkillForm({ name: '', level: 50 });
-      setShowSkillForm(false);
-      setTimeout(() => setSaveStatus(''), 2000);
-    } catch (err) {
-      console.error('Error adding skill:', err);
-      setError('Gagal menambah skill!');
-    }
+      flash('[ OK ] Skill added'); await loadAllData();
+      setSkillForm({ name: '', level: 50 }); setShowSkillForm(false);
+    } catch (err) { console.error(err); setError('Save failed!'); }
   };
 
   const handleDeleteSkill = async (category, index) => {
-    if (window.confirm('Hapus skill ini?')) {
-      try {
-        const skill = skills[category][index];
-        await axios.delete(`${API_URL}/api/skills?id=${skill.id}`);
-        setSaveStatus('✓ Skill deleted');
-        await loadAllData();
-        setTimeout(() => setSaveStatus(''), 2000);
-      } catch (err) {
-        console.error('Error deleting skill:', err);
-        alert('Gagal menghapus skill!');
-      }
-    }
+    if (!window.confirm('Delete this skill?')) return;
+    try {
+      const skill = skills[category][index];
+      await axios.delete(`${API_URL}/api/skills?id=${skill.id}`);
+      flash('[ OK ] Skill deleted'); await loadAllData();
+    } catch (err) { console.error(err); }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-purple-500 mx-auto mb-4"></div>
-          <p className="text-white text-lg">Loading Portfolio...</p>
-        </div>
-      </div>
-    );
-  }
-
   const filteredProjects = projects.filter(p => projectCategory === 'all' || p.category === projectCategory);
+  const NAV_SECTIONS = ['home', 'about', 'skills', 'experience', 'certifications', 'projects'];
 
+  /* ─────────────────────────────────────────
+     LOADING SCREEN
+  ───────────────────────────────────────── */
+  if (loading) return (
+    <div className="min-h-screen bg-cyber-black bg-cyber-grid flex items-center justify-center" style={{ backgroundSize: '40px 40px' }}>
+      <div className="text-center">
+        <div className="relative mx-auto mb-8" style={{ width: 80, height: 80 }}>
+          <div className="loading-ring absolute inset-0 rounded-full" style={{ width: 80, height: 80 }} />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Cpu size={28} style={{ color: 'var(--cyber-cyan)' }} />
+          </div>
+        </div>
+        <p className="font-mono-cyber text-sm mb-1" style={{ color: 'var(--cyber-cyan)' }}>
+          INITIALIZING SYSTEM
+        </p>
+        <p className="font-mono-cyber text-xs" style={{ color: 'rgba(0,212,255,0.4)' }}>
+          Loading portfolio data...
+        </p>
+      </div>
+    </div>
+  );
+
+  /* ─────────────────────────────────────────
+     MAIN RENDER
+  ───────────────────────────────────────── */
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-cyber-black scanlines" style={{ backgroundImage: 'radial-gradient(ellipse at 50% 0%, rgba(0,212,255,0.04) 0%, transparent 60%)' }}>
+
+      {/* Grid background */}
+      <div className="fixed inset-0 bg-cyber-grid pointer-events-none" style={{ backgroundSize: '40px 40px', zIndex: 0 }} />
+
+      {/* Save status toast */}
       {saveStatus && (
-        <div className="fixed top-4 right-4 z-50 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg text-sm font-medium">
+        <div className="fixed top-4 right-4 z-50 font-mono-cyber text-xs px-4 py-2 animate-fade-in-up"
+          style={{ background: 'rgba(2,4,8,0.9)', border: '1px solid var(--cyber-neon)', color: 'var(--cyber-neon)', boxShadow: '0 0 20px var(--glow-neon)' }}>
           {saveStatus}
         </div>
       )}
 
-      <header className="bg-black bg-opacity-30 backdrop-blur-lg border-b border-white border-opacity-10 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-6 py-6">
+      {/* ── HEADER ── */}
+      <header className="sticky top-0 z-40" style={{ background: 'rgba(2,4,8,0.85)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(0,212,255,0.08)' }}>
+        {/* top accent line */}
+        <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent, var(--cyber-cyan), var(--cyber-neon), transparent)' }} />
+        <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-white mb-1 cursor-pointer select-none" onDoubleClick={() => !isAuthenticated && setShowLogin(true)} title="Double click untuk admin">
-                Fikral Andhika Ramadhani
-              </h1>
-              <p className="text-purple-300">Web Developer & Data Analyst | Automotive Enthusiast </p>
+
+            {/* Logo / Name */}
+            <div className="flex items-center gap-3">
+              <div className="relative w-8 h-8 flex-shrink-0">
+                <div className="absolute inset-0 border border-cyber-cyan opacity-60 rotate-45" style={{ borderColor: 'var(--cyber-cyan)' }} />
+                <div className="absolute inset-1 border border-cyber-cyan opacity-30 rotate-45" style={{ borderColor: 'var(--cyber-cyan)' }} />
+                <Code2 size={14} className="absolute inset-0 m-auto" style={{ color: 'var(--cyber-cyan)' }} />
+              </div>
+              <div
+                onDoubleClick={() => !isAuthenticated && setShowLogin(true)}
+                title="Double click for admin"
+                className="cursor-pointer select-none"
+              >
+                <h1 className="font-orbitron font-bold text-white leading-none" style={{ fontSize: '0.95rem', letterSpacing: '1px' }}>
+                  FIKRAL ANDHIKA
+                </h1>
+                <p className="font-mono-cyber text-xs mt-0.5" style={{ color: 'var(--cyber-cyan)', opacity: 0.7 }}>
+                  WEB_DEV :: DATA_ANALYST
+                </p>
+              </div>
             </div>
-            <nav className="hidden md:flex gap-6 items-center">
-              {['home', 'about', 'skills', 'experience', 'certifications', 'projects'].map(section => (
-                <button key={section} onClick={() => scrollToSection(section)} className={`text-sm font-medium transition-colors capitalize ${activeSection === section ? 'text-purple-400' : 'text-gray-300 hover:text-white'}`}>
-                  {section}
+
+            {/* Desktop nav */}
+            <nav className="hidden md:flex items-center gap-8">
+              {NAV_SECTIONS.map(s => (
+                <button key={s} onClick={() => scrollTo(s)}
+                  className={`nav-link ${activeSection === s ? 'active' : ''}`}>
+                  {s}
                 </button>
               ))}
             </nav>
-            <div className="flex gap-4 items-center">
-              <button onClick={() => setShowMobileMenu(true)} className="md:hidden text-white hover:text-purple-300 transition-colors">
-                <Menu size={24} />
-              </button>
-              <a href="mailto:email@example.com" className="hidden md:block text-white hover:text-purple-300 transition-colors"><Mail size={24} /></a>
-              <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hidden md:block text-white hover:text-purple-300 transition-colors"><Github size={24} /></a>
-              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hidden md:block text-white hover:text-purple-300 transition-colors"><Linkedin size={24} /></a>
+
+            {/* Right icons */}
+            <div className="flex items-center gap-3">
+              <a href="mailto:email@example.com" aria-label="Email"
+                className="hidden md:flex w-8 h-8 items-center justify-center transition-all"
+                style={{ border: '1px solid rgba(0,212,255,0.2)', color: 'rgba(200,214,229,0.6)' }}
+                onMouseOver={e => { e.currentTarget.style.color = 'var(--cyber-cyan)'; e.currentTarget.style.boxShadow = '0 0 10px var(--glow-cyan)'; }}
+                onMouseOut={e => { e.currentTarget.style.color = 'rgba(200,214,229,0.6)'; e.currentTarget.style.boxShadow = 'none'; }}>
+                <Mail size={16} />
+              </a>
+              <a href="https://github.com" target="_blank" rel="noopener noreferrer" aria-label="GitHub"
+                className="hidden md:flex w-8 h-8 items-center justify-center transition-all"
+                style={{ border: '1px solid rgba(0,212,255,0.2)', color: 'rgba(200,214,229,0.6)' }}
+                onMouseOver={e => { e.currentTarget.style.color = 'var(--cyber-cyan)'; e.currentTarget.style.boxShadow = '0 0 10px var(--glow-cyan)'; }}
+                onMouseOut={e => { e.currentTarget.style.color = 'rgba(200,214,229,0.6)'; e.currentTarget.style.boxShadow = 'none'; }}>
+                <Github size={16} />
+              </a>
+              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"
+                className="hidden md:flex w-8 h-8 items-center justify-center transition-all"
+                style={{ border: '1px solid rgba(0,212,255,0.2)', color: 'rgba(200,214,229,0.6)' }}
+                onMouseOver={e => { e.currentTarget.style.color = 'var(--cyber-cyan)'; e.currentTarget.style.boxShadow = '0 0 10px var(--glow-cyan)'; }}
+                onMouseOut={e => { e.currentTarget.style.color = 'rgba(200,214,229,0.6)'; e.currentTarget.style.boxShadow = 'none'; }}>
+                <Linkedin size={16} />
+              </a>
               {isAuthenticated && (
-                <button onClick={() => setIsAuthenticated(false)} className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition-colors">Logout</button>
+                <button onClick={() => setIsAuthenticated(false)}
+                  className="hidden md:flex items-center gap-1 font-mono-cyber text-xs px-3 py-1.5 transition-all"
+                  style={{ border: '1px solid var(--cyber-magenta)', color: 'var(--cyber-magenta)' }}
+                  onMouseOver={e => { e.currentTarget.style.background = 'rgba(255,0,110,0.1)'; }}
+                  onMouseOut={e => { e.currentTarget.style.background = 'transparent'; }}>
+                  <Lock size={12} /> LOGOUT
+                </button>
               )}
+              <button onClick={() => setShowMobileMenu(true)} className="md:hidden" style={{ color: 'var(--cyber-cyan)' }}>
+                <Menu size={22} />
+              </button>
             </div>
           </div>
         </div>
       </header>
 
+      {/* ── MOBILE MENU ── */}
       {showMobileMenu && (
-        <div className="fixed inset-0 bg-black bg-opacity-90 z-50 md:hidden">
+        <div className="fixed inset-0 z-50 md:hidden mobile-menu-overlay">
           <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between p-6 border-b border-white border-opacity-10">
-              <h2 className="text-xl font-bold text-white">Menu</h2>
-              <button onClick={() => setShowMobileMenu(false)} className="text-white hover:text-purple-300">
-                <X size={28} />
-              </button>
+            <div className="flex items-center justify-between p-6" style={{ borderBottom: '1px solid rgba(0,212,255,0.1)' }}>
+              <span className="font-orbitron font-bold" style={{ color: 'var(--cyber-cyan)' }}>NAVIGATION</span>
+              <button onClick={() => setShowMobileMenu(false)} style={{ color: 'var(--cyber-cyan)' }}><X size={24} /></button>
             </div>
-            <nav className="flex-1 flex flex-col p-6 space-y-4">
-              {['home', 'about', 'skills', 'experience', 'certifications', 'projects'].map(section => (
-                <button 
-                  key={section} 
-                  onClick={() => { 
-                    scrollToSection(section); 
-                    setShowMobileMenu(false); 
-                  }} 
-                  className={`text-left text-2xl font-medium transition-colors capitalize py-3 ${activeSection === section ? 'text-purple-400' : 'text-gray-300'}`}
-                >
-                  {section}
+            <nav className="flex-1 flex flex-col p-8 gap-2">
+              {NAV_SECTIONS.map(s => (
+                <button key={s} onClick={() => { scrollTo(s); setShowMobileMenu(false); }}
+                  className={`text-left py-4 font-rajdhani font-semibold text-xl uppercase tracking-widest transition-all ${activeSection === s ? 'text-neon-cyan' : ''}`}
+                  style={{ color: activeSection === s ? 'var(--cyber-cyan)' : 'rgba(200,214,229,0.5)', borderBottom: '1px solid rgba(0,212,255,0.05)' }}>
+                  <span className="font-mono-cyber text-xs mr-3" style={{ color: 'var(--cyber-cyan)', opacity: 0.5 }}>{'>'}</span>
+                  {s}
                 </button>
               ))}
             </nav>
-            <div className="p-6 border-t border-white border-opacity-10">
-              <div className="flex gap-6 justify-center">
-                <a href="mailto:email@example.com" className="text-white hover:text-purple-300 transition-colors">
-                  <Mail size={28} />
-                </a>
-                <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="text-white hover:text-purple-300 transition-colors">
-                  <Github size={28} />
-                </a>
-                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="text-white hover:text-purple-300 transition-colors">
-                  <Linkedin size={28} />
-                </a>
-              </div>
+            <div className="p-6 flex gap-4" style={{ borderTop: '1px solid rgba(0,212,255,0.1)' }}>
+              <a href="mailto:email@example.com" style={{ color: 'rgba(200,214,229,0.5)' }}><Mail size={22} /></a>
+              <a href="https://github.com" target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(200,214,229,0.5)' }}><Github size={22} /></a>
+              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(200,214,229,0.5)' }}><Linkedin size={22} /></a>
             </div>
           </div>
         </div>
       )}
 
-      <main>
-        <div id="home" className="text-center min-h-screen flex flex-col justify-center max-w-7xl mx-auto px-6">
-          <h2 className="text-6xl font-bold text-white mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Hello, I'm Fikral Andhika Ramadhani</h2>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto mb-8"></p>
-          <div className="flex gap-4 justify-center">
-            <button onClick={() => scrollToSection('projects')} className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-3 rounded-lg font-medium transition-all transform hover:scale-105">View My Projects</button>
-            <button onClick={() => scrollToSection('about')} className="bg-white bg-opacity-10 hover:bg-opacity-20 text-white px-8 py-3 rounded-lg font-medium transition-all">Learn More</button>
-          </div>
-        </div>
+      {/* ═══════════════════════════════════════
+          MAIN CONTENT
+      ═══════════════════════════════════════ */}
+      <main className="relative z-10">
 
-        <section id="about" className="max-w-7xl mx-auto px-6 py-12 mb-8">
-          <div className="flex items-center justify-between mb-8">
-            <h3 className="text-4xl font-bold text-white text-center flex-1">About Me</h3>
+        {/* ── HERO ── */}
+        <section id="home" className="min-h-screen flex flex-col justify-center items-center text-center relative px-6 overflow-hidden">
+          {/* decorative orbs */}
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full pointer-events-none"
+            style={{ background: 'radial-gradient(circle, rgba(0,212,255,0.04) 0%, transparent 70%)', filter: 'blur(40px)' }} />
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full pointer-events-none"
+            style={{ background: 'radial-gradient(circle, rgba(0,255,136,0.04) 0%, transparent 70%)', filter: 'blur(40px)' }} />
+
+          <div className="relative z-10 max-w-4xl mx-auto">
+            {/* status badge */}
+            <div className="inline-flex items-center gap-2 mb-8 px-4 py-2 font-mono-cyber text-xs"
+              style={{ border: '1px solid rgba(0,255,136,0.3)', background: 'rgba(0,255,136,0.04)', color: 'var(--cyber-neon)' }}>
+              <span className="w-2 h-2 rounded-full bg-current animate-pulse" />
+              SYSTEM ONLINE — AVAILABLE FOR HIRE
+            </div>
+
+            {/* main title */}
+            <h2 className="font-orbitron font-black text-white mb-2 leading-none"
+              style={{ fontSize: 'clamp(2.5rem, 8vw, 5.5rem)', letterSpacing: '-1px' }}>
+              FIKRAL ANDHIKA
+            </h2>
+            <h2 className="font-orbitron font-black mb-6 leading-none"
+              style={{ fontSize: 'clamp(2.5rem, 8vw, 5.5rem)', letterSpacing: '-1px', background: 'linear-gradient(135deg, var(--cyber-cyan), var(--cyber-neon))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+              RAMADHANI
+            </h2>
+
+            <p className="font-mono-cyber mb-10 mx-auto max-w-lg leading-relaxed"
+              style={{ color: 'rgba(200,214,229,0.5)', fontSize: '0.85rem' }}>
+              {'>'} Web Developer &amp; Data Analyst<br />
+              {'>'} Automotive Enthusiast
+            </p>
+
+            {/* divider with diamond */}
+            <div className="cyber-divider mb-10 mx-auto max-w-xs" />
+
+            {/* CTA buttons */}
+            <div className="flex flex-wrap gap-4 justify-center">
+              <button className="btn-cyber-primary" onClick={() => scrollTo('projects')}>
+                VIEW PROJECTS
+              </button>
+              <button className="btn-cyber-secondary" onClick={() => scrollTo('about')}>
+                ABOUT ME
+              </button>
+            </div>
+
+            {/* scroll indicator */}
+            <div className="mt-20 flex flex-col items-center gap-2">
+              <p className="font-mono-cyber text-xs" style={{ color: 'rgba(0,212,255,0.3)' }}>SCROLL</p>
+              <div className="scroll-indicator" />
+            </div>
+          </div>
+        </section>
+
+        {/* ── ABOUT ── */}
+        <section id="about" className="max-w-7xl mx-auto px-6 py-24">
+          <div className="flex items-start justify-between">
+            <SectionHeader label="01 / PROFILE" title="About Me" />
             {isAuthenticated && (
-              <button onClick={() => setShowAboutForm(true)} className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm"><Edit2 size={16} />Edit</button>
+              <button className="btn-cyber-primary text-xs flex items-center gap-2 px-4 py-2 mt-2"
+                onClick={() => setShowAboutForm(true)}>
+                <Edit2 size={14} /> EDIT
+              </button>
             )}
           </div>
-          <div className="bg-white bg-opacity-5 backdrop-blur-lg rounded-2xl p-8 border border-white border-opacity-10">
-            <div className="grid md:grid-cols-2 gap-8 items-center">
+
+          <div className="cyber-panel relative p-8 md:p-10">
+            <HudCorners />
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+
+              {/* photo */}
               <div className="relative group">
-                <img src={aboutData.profileImage} alt="Profile" className="rounded-2xl w-full h-96 object-cover" />
-                {isAuthenticated && (
-                  <div className="absolute inset-0 bg-black bg-opacity-50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <button 
-                      onClick={() => setShowAboutForm(true)} 
-                      className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium"
-                    >
-                      Edit About & Photo
-                    </button>
+                <div className="absolute -inset-px pointer-events-none"
+                  style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.2), transparent 50%, rgba(0,255,136,0.2))', borderRadius: 2 }} />
+                <div className="relative overflow-hidden" style={{ aspectRatio: '4/5' }}>
+                  {aboutData.profileImage ? (
+                    <img src={aboutData.profileImage} alt="Profile"
+                      className="w-full h-full object-cover"
+                      style={{ filter: 'brightness(0.9) contrast(1.1)' }} />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-cyber-navy">
+                      <User size={64} style={{ color: 'rgba(0,212,255,0.2)' }} />
+                    </div>
+                  )}
+                  {/* overlay on hover */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    style={{ background: 'rgba(2,4,8,0.7)', backdropFilter: 'blur(4px)' }}>
+                    {isAuthenticated && (
+                      <button className="btn-cyber-primary text-xs" onClick={() => setShowAboutForm(true)}>
+                        CHANGE PHOTO
+                      </button>
+                    )}
                   </div>
-                )}
+                </div>
+                {/* decorative scan line */}
+                <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                  <div className="absolute left-0 right-0 h-px"
+                    style={{ background: 'linear-gradient(90deg, transparent, var(--cyber-cyan), transparent)', opacity: 0.3, top: '30%' }} />
+                </div>
               </div>
+
+              {/* text content */}
               <div>
-                <p className="text-gray-300 mb-4 leading-relaxed">{aboutData.bio1}</p>
-                <p className="text-gray-300 mb-6 leading-relaxed">{aboutData.bio2}</p>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="mb-6">
+                  <p className="section-label mb-1">BIO.TXT</p>
+                  <div className="w-8 h-px" style={{ background: 'var(--cyber-cyan)' }} />
+                </div>
+                <p className="text-gray-400 mb-4 leading-relaxed text-sm">{aboutData.bio1}</p>
+                <p className="text-gray-400 mb-8 leading-relaxed text-sm">{aboutData.bio2}</p>
+
+                {/* stats grid */}
+                <div className="grid grid-cols-2 gap-3">
                   {aboutData.stats.map((stat, i) => (
-                    <div key={i} className="bg-purple-500 bg-opacity-10 p-4 rounded-lg">
-                      <h4 className="text-purple-400 font-bold text-2xl mb-1">{stat.value}</h4>
-                      <p className="text-gray-300 text-sm">{stat.label}</p>
+                    <div key={i} className="stat-card">
+                      <p className="font-orbitron font-bold text-2xl mb-1"
+                        style={{ color: i % 2 === 0 ? 'var(--cyber-cyan)' : 'var(--cyber-neon)' }}>
+                        {stat.value}
+                      </p>
+                      <p className="font-mono-cyber text-xs" style={{ color: 'rgba(200,214,229,0.4)' }}>
+                        {stat.label}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -754,31 +694,51 @@ export default function App() {
           </div>
         </section>
 
-        <section id="skills" className="max-w-7xl mx-auto px-6 py-12 mb-8">
-          <h3 className="text-4xl font-bold text-white mb-8 text-center">My Skills</h3>
+        {/* ── SKILLS ── */}
+        <section id="skills" className="max-w-7xl mx-auto px-6 py-24">
+          <SectionHeader label="02 / CAPABILITIES" title="My Skills" />
+
           <div className="grid md:grid-cols-3 gap-6">
-            {Object.keys(skills).map(category => (
-              <div key={category} className="bg-white bg-opacity-5 backdrop-blur-lg rounded-2xl p-6 border border-white border-opacity-10">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-xl font-bold text-white capitalize">{category}</h4>
+            {Object.keys(skills).map((category, catIdx) => (
+              <div key={category} className="cyber-panel relative p-6">
+                <HudCorners />
+                {/* category header */}
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-1 h-6" style={{ background: catIdx % 3 === 0 ? 'var(--cyber-cyan)' : catIdx % 3 === 1 ? 'var(--cyber-neon)' : 'var(--cyber-magenta)' }} />
+                    <h4 className="font-rajdhani font-bold uppercase tracking-widest text-white">{category}</h4>
+                  </div>
                   {isAuthenticated && (
-                    <button onClick={() => { setEditingSkillCategory(category); setShowSkillForm(true); }} className="text-purple-400 hover:text-purple-300"><Plus size={20} /></button>
+                    <button onClick={() => { setEditingSkillCategory(category); setShowSkillForm(true); }}
+                      className="w-7 h-7 flex items-center justify-center transition-all"
+                      style={{ border: '1px solid rgba(0,212,255,0.2)', color: 'var(--cyber-cyan)' }}>
+                      <Plus size={14} />
+                    </button>
                   )}
                 </div>
-                <div className="space-y-3">
+
+                <div className="space-y-4">
                   {skills[category].map((skill, idx) => (
                     <div key={idx}>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="text-gray-300">{skill.name}</span>
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="font-mono-cyber text-xs" style={{ color: 'rgba(200,214,229,0.7)' }}>
+                          {skill.name}
+                        </span>
                         <div className="flex items-center gap-2">
-                          <span className="text-purple-400">{skill.level}%</span>
+                          <span className="font-mono-cyber text-xs" style={{ color: 'var(--cyber-cyan)' }}>
+                            {skill.level}%
+                          </span>
                           {isAuthenticated && (
-                            <button onClick={() => handleDeleteSkill(category, idx)} className="text-red-400 hover:text-red-300"><X size={14} /></button>
+                            <button onClick={() => handleDeleteSkill(category, idx)}
+                              className="w-4 h-4 flex items-center justify-center"
+                              style={{ color: 'var(--cyber-magenta)' }}>
+                              <X size={12} />
+                            </button>
                           )}
                         </div>
                       </div>
-                      <div className="w-full bg-gray-700 rounded-full h-2">
-                        <div className="bg-gradient-to-r from-purple-600 to-pink-600 h-2 rounded-full" style={{ width: `${skill.level}%` }}></div>
+                      <div className="skill-bar-track">
+                        <div className="skill-bar-fill" style={{ width: `${skill.level}%` }} />
                       </div>
                     </div>
                   ))}
@@ -788,132 +748,236 @@ export default function App() {
           </div>
         </section>
 
-        <section id="experience" className="max-w-7xl mx-auto px-6 py-12 mb-8">
-          <div className="flex items-center justify-between mb-8">
-            <h3 className="text-4xl font-bold text-white flex-1 text-center">Experience</h3>
+        {/* ── EXPERIENCE ── */}
+        <section id="experience" className="max-w-7xl mx-auto px-6 py-24">
+          <div className="flex items-start justify-between">
+            <SectionHeader label="03 / HISTORY" title="Experience" />
             {isAuthenticated && (
-              <button onClick={() => setShowExpForm(true)} className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm"><Plus size={16} />Add</button>
+              <button className="btn-cyber-primary text-xs flex items-center gap-2 px-4 py-2 mt-2"
+                onClick={() => setShowExpForm(true)}>
+                <Plus size={14} /> ADD
+              </button>
             )}
           </div>
+
           <div className="space-y-6">
-            {experiences.map(exp => (
-              <div key={exp.id} className="bg-white bg-opacity-5 backdrop-blur-lg rounded-2xl p-6 border border-white border-opacity-10 relative group">
+            {experiences.map((exp, i) => (
+              <div key={exp.id} className="cyber-panel relative p-6 md:p-8 group">
+                <HudCorners />
+                {/* index badge */}
+                <div className="absolute top-6 left-6 font-mono-cyber text-xs"
+                  style={{ color: 'rgba(0,212,255,0.3)' }}>
+                  [{String(i + 1).padStart(2, '0')}]
+                </div>
+
                 {isAuthenticated && (
                   <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => handleEditExperience(exp)} className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full"><Edit2 size={16} /></button>
-                    <button onClick={() => handleDeleteExperience(exp.id)} className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full"><Trash2 size={16} /></button>
+                    <button onClick={() => handleEditExperience(exp)}
+                      className="w-7 h-7 flex items-center justify-center"
+                      style={{ border: '1px solid rgba(0,212,255,0.3)', color: 'var(--cyber-cyan)' }}>
+                      <Edit2 size={13} />
+                    </button>
+                    <button onClick={() => handleDeleteExperience(exp.id)}
+                      className="w-7 h-7 flex items-center justify-center"
+                      style={{ border: '1px solid rgba(255,0,110,0.3)', color: 'var(--cyber-magenta)' }}>
+                      <Trash2 size={13} />
+                    </button>
                   </div>
                 )}
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
-                  <div className="flex-1">
-                    <h4 className="text-xl font-bold text-white mb-1">{exp.position}</h4>
-                    <p className="text-purple-400 font-medium">{exp.company}</p>
-                  </div>
-                  <span className="text-gray-400 text-sm mt-2 md:mt-0 flex-shrink-0">{exp.year}</span>
-                </div>
-                {exp.description && <p className="text-gray-300 mb-4 break-words" style={{wordBreak: 'break-word', overflowWrap: 'break-word'}}>{exp.description}</p>}
-                {exp.achievements && exp.achievements.length > 0 && (
-                  <div className="mt-4 w-full overflow-hidden">
-                    <p className="text-gray-400 text-sm font-medium mb-3">Key Achievements:</p>
-                    <ul className="space-y-2 list-none pl-0">
-                      {exp.achievements.map((ach, i) => (
-                        <li key={i} className="flex items-start gap-3 w-full">
-                          <span className="text-purple-400 flex-shrink-0 select-none">•</span>
-                          <span className="text-gray-300 text-sm flex-1 leading-relaxed" style={{wordBreak: 'break-word', overflowWrap: 'break-word'}}>{ach}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
 
-        <section id="certifications" className="max-w-7xl mx-auto px-6 py-12 mb-8">
-          <div className="flex items-center justify-between mb-8">
-            <h3 className="text-4xl font-bold text-white flex-1 text-center">Certifications</h3>
-            {isAuthenticated && (
-              <button onClick={() => setShowCertForm(true)} className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm"><Plus size={16} />Add</button>
-            )}
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {certifications.map(cert => (
-              <div key={cert.id} className="bg-white bg-opacity-5 backdrop-blur-lg rounded-2xl p-6 border border-white border-opacity-10 hover:border-purple-500 transition-all relative group">
-                {isAuthenticated && (
-                  <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => handleEditCertification(cert)} className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full"><Edit2 size={16} /></button>
-                    <button onClick={() => handleDeleteCertification(cert.id)} className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full"><Trash2 size={16} /></button>
+                <div className="pl-12">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-3 gap-2">
+                    <div>
+                      <h4 className="font-rajdhani font-bold text-xl text-white">{exp.position}</h4>
+                      <p className="font-mono-cyber text-xs mt-1" style={{ color: 'var(--cyber-cyan)' }}>
+                        {exp.company}
+                      </p>
+                    </div>
+                    <span className="font-mono-cyber text-xs px-3 py-1 flex-shrink-0"
+                      style={{ border: '1px solid rgba(0,212,255,0.15)', color: 'rgba(0,212,255,0.6)', background: 'rgba(0,212,255,0.03)' }}>
+                      {exp.year}
+                    </span>
                   </div>
-                )}
-                <div className="text-4xl mb-4">{cert.icon}</div>
-                <h4 className="text-lg font-bold text-white mb-2">{cert.title}</h4>
-                <p className="text-gray-400 text-sm mb-1">{cert.issuer}</p>
-                <p className="text-purple-400 text-sm font-medium">{cert.year}</p>
-              </div>
-            ))}
-          </div>
-        </section>
 
-        <section id="projects" className="max-w-7xl mx-auto px-6 py-12 mb-8">
-          <div className="mb-8 flex items-center justify-between">
-            <div className="flex items-center gap-3 flex-1">
-              <Briefcase className="text-purple-400" size={28} />
-              <h3 className="text-3xl font-bold text-white">My Projects</h3>
-            </div>
-            {isAuthenticated && (
-              <button onClick={() => setShowProjectForm(true)} className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg font-medium"><Plus size={20} />Add Project</button>
-            )}
-          </div>
-          
-          <div className="flex gap-3 mb-6 flex-wrap">
-            <button onClick={() => setProjectCategory('all')} className={`px-6 py-2 rounded-lg font-medium transition-all ${projectCategory === 'all' ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : 'bg-white bg-opacity-10 text-gray-300 hover:bg-opacity-20'}`}>
-              All Projects
-            </button>
-            <button onClick={() => setProjectCategory('it')} className={`px-6 py-2 rounded-lg font-medium transition-all ${projectCategory === 'it' ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : 'bg-white bg-opacity-10 text-gray-300 hover:bg-opacity-20'}`}>
-              IT & Development
-            </button>
-            <button onClick={() => setProjectCategory('automotive')} className={`px-6 py-2 rounded-lg font-medium transition-all ${projectCategory === 'automotive' ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : 'bg-white bg-opacity-10 text-gray-300 hover:bg-opacity-20'}`}>
-              Automotive
-            </button>
-          </div>
+                  {exp.description && (
+                    <p className="text-gray-400 text-sm mb-4 leading-relaxed"
+                      style={{ wordBreak: 'break-word' }}>
+                      {exp.description}
+                    </p>
+                  )}
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredProjects.map(project => (
-              <div key={project.id} className="group bg-white bg-opacity-5 backdrop-blur-lg rounded-xl overflow-hidden border border-white border-opacity-10 hover:border-purple-500 transition-all">
-                <div className="relative overflow-hidden">
-                  <img 
-                    src={
-                      (Array.isArray(project.images) && project.images.length > 0)
-                        ? project.images[0]
-                        : 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80'
-                    }
-                    alt={project.title} 
-                    className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500" 
-                    onError={(e) => {
-                      e.target.src = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80';
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-60"></div>
-                  {isAuthenticated && (
-                    <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button onClick={() => handleEditProject(project)} className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full"><Edit2 size={16} /></button>
-                      <button onClick={() => handleDeleteProject(project.id)} className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full"><X size={16} /></button>
+                  {exp.achievements?.length > 0 && (
+                    <div>
+                      <p className="font-mono-cyber text-xs mb-3" style={{ color: 'rgba(0,212,255,0.5)' }}>
+                        // KEY_ACHIEVEMENTS
+                      </p>
+                      <ul className="space-y-2">
+                        {exp.achievements.map((ach, j) => (
+                          <li key={j} className="flex items-start gap-3">
+                            <span className="flex-shrink-0 mt-1" style={{ color: 'var(--cyber-neon)' }}>▸</span>
+                            <span className="text-gray-400 text-sm leading-relaxed"
+                              style={{ wordBreak: 'break-word' }}>{ach}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   )}
                 </div>
-                <div className="p-6">
-                  <h4 className="text-xl font-bold text-white mb-2">{project.title}</h4>
-                  <p className="text-gray-300 text-sm mb-4 line-clamp-2">{project.description}</p>
-                  <div className="flex flex-wrap gap-2 mb-4">
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── CERTIFICATIONS ── */}
+        <section id="certifications" className="max-w-7xl mx-auto px-6 py-24">
+          <div className="flex items-start justify-between">
+            <SectionHeader label="04 / CREDENTIALS" title="Certifications" />
+            {isAuthenticated && (
+              <button className="btn-cyber-primary text-xs flex items-center gap-2 px-4 py-2 mt-2"
+                onClick={() => setShowCertForm(true)}>
+                <Plus size={14} /> ADD
+              </button>
+            )}
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {certifications.map(cert => (
+              <div key={cert.id} className="cert-card p-6 group relative">
+                {isAuthenticated && (
+                  <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => handleEditCertification(cert)}
+                      className="w-7 h-7 flex items-center justify-center"
+                      style={{ border: '1px solid rgba(0,212,255,0.3)', color: 'var(--cyber-cyan)' }}>
+                      <Edit2 size={13} />
+                    </button>
+                    <button onClick={() => handleDeleteCertification(cert.id)}
+                      className="w-7 h-7 flex items-center justify-center"
+                      style={{ border: '1px solid rgba(255,0,110,0.3)', color: 'var(--cyber-magenta)' }}>
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                )}
+                <div className="flex items-start gap-4">
+                  <div className="text-3xl flex-shrink-0 w-12 h-12 flex items-center justify-center"
+                    style={{ background: 'rgba(0,212,255,0.05)', border: '1px solid rgba(0,212,255,0.1)' }}>
+                    {cert.icon}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-rajdhani font-bold text-white text-sm mb-1 leading-tight">{cert.title}</h4>
+                    <p className="font-mono-cyber text-xs mb-2" style={{ color: 'rgba(200,214,229,0.4)' }}>{cert.issuer}</p>
+                    <span className="font-mono-cyber text-xs" style={{ color: 'var(--cyber-cyan)' }}>{cert.year}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── PROJECTS ── */}
+        <section id="projects" className="max-w-7xl mx-auto px-6 py-24">
+          <div className="flex items-start justify-between">
+            <SectionHeader label="05 / PORTFOLIO" title="My Projects" />
+            {isAuthenticated && (
+              <button className="btn-cyber-primary text-xs flex items-center gap-2 px-4 py-2 mt-2"
+                onClick={() => setShowProjectForm(true)}>
+                <Plus size={14} /> ADD PROJECT
+              </button>
+            )}
+          </div>
+
+          {/* filter tabs */}
+          <div className="flex gap-2 mb-8 flex-wrap">
+            {['all', 'it', 'automotive'].map(cat => (
+              <button key={cat} onClick={() => setProjectCategory(cat)}
+                className="font-mono-cyber text-xs px-5 py-2 transition-all"
+                style={{
+                  border: `1px solid ${projectCategory === cat ? 'var(--cyber-cyan)' : 'rgba(0,212,255,0.15)'}`,
+                  color: projectCategory === cat ? 'var(--cyber-cyan)' : 'rgba(200,214,229,0.4)',
+                  background: projectCategory === cat ? 'rgba(0,212,255,0.08)' : 'transparent',
+                  boxShadow: projectCategory === cat ? '0 0 10px rgba(0,212,255,0.1)' : 'none',
+                }}>
+                {cat === 'all' ? 'ALL' : cat === 'it' ? 'IT & DEV' : 'AUTOMOTIVE'}
+              </button>
+            ))}
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredProjects.map(project => (
+              <div key={project.id} className="project-card cyber-panel group relative">
+                {/* image */}
+                <div className="relative overflow-hidden" style={{ height: 200 }}>
+                  <img
+                    src={Array.isArray(project.images) && project.images.length > 0
+                      ? project.images[0]
+                      : 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80'}
+                    alt={project.title}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    style={{ filter: 'brightness(0.85)' }}
+                    onError={e => { e.target.src = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80'; }}
+                  />
+                  <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(2,4,8,0.9) 0%, transparent 60%)' }} />
+
+                  {/* category badge */}
+                  <div className="absolute top-3 left-3 font-mono-cyber text-xs px-2 py-0.5"
+                    style={{ background: 'rgba(2,4,8,0.8)', border: '1px solid rgba(0,212,255,0.2)', color: 'var(--cyber-cyan)' }}>
+                    {project.category === 'it' ? 'IT_DEV' : 'AUTO'}
+                  </div>
+
+                  {isAuthenticated && (
+                    <div className="absolute top-3 right-3 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onClick={() => handleEditProject(project)}
+                        className="w-7 h-7 flex items-center justify-center"
+                        style={{ background: 'rgba(2,4,8,0.9)', border: '1px solid rgba(0,212,255,0.3)', color: 'var(--cyber-cyan)' }}>
+                        <Edit2 size={13} />
+                      </button>
+                      <button onClick={() => handleDeleteProject(project.id)}
+                        className="w-7 h-7 flex items-center justify-center"
+                        style={{ background: 'rgba(2,4,8,0.9)', border: '1px solid rgba(255,0,110,0.3)', color: 'var(--cyber-magenta)' }}>
+                        <X size={13} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* content */}
+                <div className="p-5">
+                  <h4 className="font-rajdhani font-bold text-white text-lg mb-2">{project.title}</h4>
+                  <p className="text-gray-500 text-sm mb-4 leading-relaxed line-clamp-2">{project.description}</p>
+
+                  {/* tags */}
+                  <div className="flex flex-wrap gap-1.5 mb-5">
                     {(project.tags || []).map((tag, i) => (
-                      <span key={i} className="px-3 py-1 bg-purple-500 bg-opacity-20 text-purple-300 rounded-full text-xs font-medium">{tag}</span>
+                      <span key={i} className="cyber-tag">{tag}</span>
                     ))}
                   </div>
-                  <div className="flex gap-3">
-                    <button onClick={() => setSelectedProject(project)} className="flex-1 flex items-center justify-center gap-2 bg-white bg-opacity-10 hover:bg-opacity-20 text-white px-4 py-2 rounded-lg text-sm"><Eye size={16} />View</button>
-                    {project.github && <a href={project.github} target="_blank" rel="noopener noreferrer" className="p-2 bg-white bg-opacity-10 hover:bg-opacity-20 text-white rounded-lg"><Github size={20} /></a>}
-                    {project.demo && <a href={project.demo} target="_blank" rel="noopener noreferrer" className="p-2 bg-white bg-opacity-10 hover:bg-opacity-20 text-white rounded-lg"><ExternalLink size={20} /></a>}
+
+                  {/* actions */}
+                  <div className="flex gap-2 pt-4" style={{ borderTop: '1px solid rgba(0,212,255,0.06)' }}>
+                    <button onClick={() => setSelectedProject(project)}
+                      className="flex-1 flex items-center justify-center gap-2 font-mono-cyber text-xs py-2 transition-all"
+                      style={{ border: '1px solid rgba(0,212,255,0.2)', color: 'var(--cyber-cyan)' }}
+                      onMouseOver={e => { e.currentTarget.style.background = 'rgba(0,212,255,0.06)'; }}
+                      onMouseOut={e => { e.currentTarget.style.background = 'transparent'; }}>
+                      <Eye size={14} /> VIEW
+                    </button>
+                    {project.github && (
+                      <a href={project.github} target="_blank" rel="noopener noreferrer"
+                        className="w-9 flex items-center justify-center transition-all"
+                        style={{ border: '1px solid rgba(0,212,255,0.15)', color: 'rgba(200,214,229,0.5)' }}
+                        onMouseOver={e => { e.currentTarget.style.color = 'var(--cyber-cyan)'; e.currentTarget.style.borderColor = 'rgba(0,212,255,0.4)'; }}
+                        onMouseOut={e => { e.currentTarget.style.color = 'rgba(200,214,229,0.5)'; e.currentTarget.style.borderColor = 'rgba(0,212,255,0.15)'; }}>
+                        <Github size={16} />
+                      </a>
+                    )}
+                    {project.demo && (
+                      <a href={project.demo} target="_blank" rel="noopener noreferrer"
+                        className="w-9 flex items-center justify-center transition-all"
+                        style={{ border: '1px solid rgba(0,212,255,0.15)', color: 'rgba(200,214,229,0.5)' }}
+                        onMouseOver={e => { e.currentTarget.style.color = 'var(--cyber-neon)'; e.currentTarget.style.borderColor = 'rgba(0,255,136,0.4)'; }}
+                        onMouseOut={e => { e.currentTarget.style.color = 'rgba(200,214,229,0.5)'; e.currentTarget.style.borderColor = 'rgba(0,212,255,0.15)'; }}>
+                        <ExternalLink size={16} />
+                      </a>
+                    )}
                   </div>
                 </div>
               </div>
@@ -922,353 +986,425 @@ export default function App() {
         </section>
       </main>
 
+      {/* ─────────────────────────────────────────
+          FOOTER
+      ───────────────────────────────────────── */}
+      <footer className="relative z-10 mt-12" style={{ borderTop: '1px solid rgba(0,212,255,0.06)', background: 'rgba(2,4,8,0.8)' }}>
+        <div className="h-px w-full mb-8" style={{ background: 'linear-gradient(90deg, transparent, var(--cyber-cyan), var(--cyber-neon), transparent)' }} />
+        <div className="max-w-7xl mx-auto px-6 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="font-mono-cyber text-xs" style={{ color: 'rgba(200,214,229,0.3)' }}>
+            © 2025 FIKRAL ANDHIKA RAMADHANI — BUILT WITH REACT
+          </p>
+          <div className="flex items-center gap-2 font-mono-cyber text-xs" style={{ color: 'rgba(0,212,255,0.4)' }}>
+            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: 'var(--cyber-neon)' }} />
+            ALL SYSTEMS OPERATIONAL
+          </div>
+        </div>
+      </footer>
+
+      {/* ═══════════════════════════════════════
+          MODALS
+      ═══════════════════════════════════════ */}
+
+      {/* ── LOGIN MODAL ── */}
       {showLogin && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-6 z-50 backdrop-blur-sm">
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 max-w-md w-full border border-purple-500 shadow-2xl">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-white">Admin Login</h3>
-              <button onClick={() => { setShowLogin(false); setError(''); setPassword(''); }} className="text-gray-400 hover:text-white"><X size={24} /></button>
+        <div className="fixed inset-0 z-50 cyber-modal-overlay flex items-center justify-center p-6">
+          <div className="relative w-full max-w-md cyber-panel p-8">
+            <HudCorners />
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-3">
+                <Shield size={20} style={{ color: 'var(--cyber-cyan)' }} />
+                <span className="font-orbitron font-bold text-white text-sm">ADMIN ACCESS</span>
+              </div>
+              <button onClick={() => { setShowLogin(false); setError(''); setPassword(''); }}
+                style={{ color: 'rgba(200,214,229,0.4)' }}><X size={20} /></button>
             </div>
+
             {error && (
-              <div className="mb-4 p-3 bg-red-500 bg-opacity-20 border border-red-500 rounded-lg flex items-center gap-2 text-red-300">
-                <AlertCircle size={18} /><span className="text-sm">{error}</span>
+              <div className="mb-4 flex items-center gap-2 font-mono-cyber text-xs p-3"
+                style={{ border: '1px solid rgba(255,0,110,0.3)', background: 'rgba(255,0,110,0.05)', color: 'var(--cyber-magenta)' }}>
+                <AlertCircle size={14} /> {error}
               </div>
             )}
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleLogin()} className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500 mb-4" placeholder="Enter password" autoFocus />
-            <button onClick={handleLogin} className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-3 rounded-lg font-medium">Login</button>
-            <p className="text-gray-400 text-sm mt-4 text-center">Default password: admin123</p>
+
+            <div className="mb-2">
+              <p className="font-mono-cyber text-xs mb-2" style={{ color: 'rgba(0,212,255,0.5)' }}>
+                {'>'} ENTER_PASSWORD:
+              </p>
+              <input
+                type="password" value={password}
+                onChange={e => setPassword(e.target.value)}
+                onKeyPress={e => e.key === 'Enter' && handleLogin()}
+                className="cyber-input" placeholder="••••••••" autoFocus
+              />
+            </div>
+
+            <button className="btn-cyber-primary w-full mt-6 flex items-center justify-center gap-2"
+              onClick={handleLogin}>
+              <Lock size={14} /> AUTHENTICATE
+            </button>
+            <p className="font-mono-cyber text-xs mt-4 text-center"
+              style={{ color: 'rgba(200,214,229,0.2)' }}>
+              default: admin123
+            </p>
           </div>
         </div>
       )}
 
-      {/* ✅ ABOUT FORM WITH STATS EDITOR */}
+      {/* ── ABOUT EDIT MODAL ── */}
       {showAboutForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-6 z-50 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 max-w-2xl w-full border border-purple-500 shadow-2xl my-8 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 cyber-modal-overlay flex items-center justify-center p-6 overflow-y-auto">
+          <div className="relative w-full max-w-2xl cyber-panel p-8 my-8 max-h-[90vh] overflow-y-auto">
+            <HudCorners />
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-white">Edit About</h3>
-              <button onClick={() => setShowAboutForm(false)} className="text-gray-400 hover:text-white"><X size={24} /></button>
+              <span className="font-orbitron font-bold text-white text-sm">EDIT PROFILE</span>
+              <button onClick={() => setShowAboutForm(false)} style={{ color: 'rgba(200,214,229,0.4)' }}>
+                <X size={20} /></button>
             </div>
+
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Profile Photo</label>
+                <p className="font-mono-cyber text-xs mb-2" style={{ color: 'rgba(0,212,255,0.5)' }}>PROFILE_PHOTO</p>
                 <div className="flex items-center gap-4">
                   {aboutData.profileImage && (
-                    <img src={aboutData.profileImage} alt="Preview" className="w-20 h-20 rounded-lg object-cover" />
+                    <img src={aboutData.profileImage} alt="Preview"
+                      className="w-16 h-16 object-cover" style={{ border: '1px solid rgba(0,212,255,0.2)' }} />
                   )}
-                  <label className="flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg cursor-pointer transition-colors text-sm">
-                    <Plus size={16} />
-                    {aboutData.profileImage ? 'Change Photo' : 'Upload Photo'}
-                    <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, (img) => {
-                      setAboutData({ ...aboutData, profileImage: img });
-                    })} />
+                  <label className="btn-cyber-primary text-xs cursor-pointer flex items-center gap-2 px-4 py-2">
+                    <Plus size={14} /> {aboutData.profileImage ? 'CHANGE' : 'UPLOAD'}
+                    <input type="file" accept="image/*" className="hidden"
+                      onChange={e => handleImageUpload(e, img => setAboutData({ ...aboutData, profileImage: img }))} />
                   </label>
                 </div>
               </div>
+
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Bio Paragraph 1</label>
-                <textarea value={aboutData.bio1} onChange={(e) => setAboutData({ ...aboutData, bio1: e.target.value })} className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500 h-24 resize-none" />
+                <p className="font-mono-cyber text-xs mb-2" style={{ color: 'rgba(0,212,255,0.5)' }}>BIO_01</p>
+                <textarea value={aboutData.bio1}
+                  onChange={e => setAboutData({ ...aboutData, bio1: e.target.value })}
+                  className="cyber-input" style={{ height: 80 }} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Bio Paragraph 2</label>
-                <textarea value={aboutData.bio2} onChange={(e) => setAboutData({ ...aboutData, bio2: e.target.value })} className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500 h-24 resize-none" />
+                <p className="font-mono-cyber text-xs mb-2" style={{ color: 'rgba(0,212,255,0.5)' }}>BIO_02</p>
+                <textarea value={aboutData.bio2}
+                  onChange={e => setAboutData({ ...aboutData, bio2: e.target.value })}
+                  className="cyber-input" style={{ height: 80 }} />
               </div>
-              
-              {/* ✅ STATS EDITOR */}
-              <div className="border-t border-white border-opacity-10 pt-4 mt-4">
-                <label className="block text-sm font-medium text-gray-300 mb-3">Statistics</label>
+
+              <div style={{ borderTop: '1px solid rgba(0,212,255,0.08)', paddingTop: 16 }}>
+                <p className="font-mono-cyber text-xs mb-3" style={{ color: 'rgba(0,212,255,0.5)' }}>STATISTICS</p>
                 <div className="grid grid-cols-2 gap-3">
                   {aboutData.stats.map((stat, idx) => (
-                    <div key={idx} className="bg-white bg-opacity-5 p-3 rounded-lg">
-                      <input 
-                        type="text" 
-                        value={stat.value} 
-                        onChange={(e) => {
-                          const newStats = [...aboutData.stats];
-                          newStats[idx].value = e.target.value;
-                          setAboutData({ ...aboutData, stats: newStats });
+                    <div key={idx} className="cyber-panel p-3">
+                      <input type="text" value={stat.value}
+                        onChange={e => {
+                          const s = [...aboutData.stats]; s[idx].value = e.target.value;
+                          setAboutData({ ...aboutData, stats: s });
                         }}
-                        className="w-full px-3 py-2 bg-white bg-opacity-10 border border-white border-opacity-10 rounded text-white focus:outline-none focus:border-purple-500 mb-2 text-sm"
-                        placeholder="Value (e.g., 3+)"
-                      />
-                      <input 
-                        type="text" 
-                        value={stat.label} 
-                        onChange={(e) => {
-                          const newStats = [...aboutData.stats];
-                          newStats[idx].label = e.target.value;
-                          setAboutData({ ...aboutData, stats: newStats });
+                        className="cyber-input mb-2" style={{ fontSize: '0.8rem', padding: '6px 10px' }}
+                        placeholder="Value" />
+                      <input type="text" value={stat.label}
+                        onChange={e => {
+                          const s = [...aboutData.stats]; s[idx].label = e.target.value;
+                          setAboutData({ ...aboutData, stats: s });
                         }}
-                        className="w-full px-3 py-2 bg-white bg-opacity-10 border border-white border-opacity-10 rounded text-white focus:outline-none focus:border-purple-500 text-sm"
-                        placeholder="Label (e.g., Years Experience)"
-                      />
+                        className="cyber-input" style={{ fontSize: '0.8rem', padding: '6px 10px' }}
+                        placeholder="Label" />
                     </div>
                   ))}
                 </div>
               </div>
-              
-              <button onClick={handleSaveAbout} className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-3 rounded-lg font-medium">Save Changes</button>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {showSkillForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-6 z-50 backdrop-blur-sm">
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 max-w-md w-full border border-purple-500 shadow-2xl">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-white">Add Skill</h3>
-              <button onClick={() => { setShowSkillForm(false); setSkillForm({ name: '', level: 50 }); setError(''); }} className="text-gray-400 hover:text-white"><X size={24} /></button>
-            </div>
-            {error && (
-              <div className="mb-4 p-3 bg-red-500 bg-opacity-20 border border-red-500 rounded-lg flex items-center gap-2 text-red-300">
-                <AlertCircle size={18} /><span className="text-sm">{error}</span>
-              </div>
-            )}
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Skill Name *</label>
-                <input type="text" value={skillForm.name} onChange={(e) => setSkillForm({ ...skillForm, name: e.target.value })} className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500" placeholder="e.g., React.js" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Level: {skillForm.level}%</label>
-                <input type="range" min="0" max="100" value={skillForm.level} onChange={(e) => setSkillForm({ ...skillForm, level: parseInt(e.target.value) })} className="w-full" />
-              </div>
-              <button onClick={handleAddSkill} className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-3 rounded-lg font-medium">Add Skill</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showExpForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-6 z-50 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 max-w-2xl w-full border border-purple-500 shadow-2xl my-8">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-white">{editingExp ? 'Edit Experience' : 'Add Experience'}</h3>
-              <button onClick={() => { setShowExpForm(false); setExpForm({ year: '', position: '', company: '', description: '', achievements: '' }); setEditingExp(null); setError(''); }} className="text-gray-400 hover:text-white"><X size={24} /></button>
-            </div>
-            {error && (
-              <div className="mb-4 p-3 bg-red-500 bg-opacity-20 border border-red-500 rounded-lg flex items-center gap-2 text-red-300">
-                <AlertCircle size={18} /><span className="text-sm">{error}</span>
-              </div>
-            )}
-            <div className="space-y-4">
-              <input type="text" value={expForm.year} onChange={(e) => setExpForm({ ...expForm, year: e.target.value })} className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500" placeholder="Year (e.g., 2023 - Present)" />
-              <input type="text" value={expForm.position} onChange={(e) => setExpForm({ ...expForm, position: e.target.value })} className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500" placeholder="Position *" />
-              <input type="text" value={expForm.company} onChange={(e) => setExpForm({ ...expForm, company: e.target.value })} className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500" placeholder="Company *" />
-              <textarea value={expForm.description} onChange={(e) => setExpForm({ ...expForm, description: e.target.value })} className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500 h-24 resize-none" placeholder="Description" />
-              <textarea value={expForm.achievements} onChange={(e) => setExpForm({ ...expForm, achievements: e.target.value })} className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500 h-32 resize-none" placeholder="Achievements (one per line)" />
-              <button onClick={handleAddExperience} className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-3 rounded-lg font-medium">{editingExp ? 'Update' : 'Add'} Experience</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showCertForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-6 z-50 backdrop-blur-sm">
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 max-w-md w-full border border-purple-500 shadow-2xl">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-white">{editingCert ? 'Edit Certification' : 'Add Certification'}</h3>
-              <button onClick={() => { setShowCertForm(false); setCertForm({ title: '', issuer: '', year: '', icon: '🎓' }); setEditingCert(null); setError(''); }} className="text-gray-400 hover:text-white"><X size={24} /></button>
-            </div>
-            {error && (
-              <div className="mb-4 p-3 bg-red-500 bg-opacity-20 border border-red-500 rounded-lg flex items-center gap-2 text-red-300">
-                <AlertCircle size={18} /><span className="text-sm">{error}</span>
-              </div>
-            )}
-            <div className="space-y-4">
-              <input type="text" value={certForm.title} onChange={(e) => setCertForm({ ...certForm, title: e.target.value })} className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500" placeholder="Title *" />
-              <input type="text" value={certForm.issuer} onChange={(e) => setCertForm({ ...certForm, issuer: e.target.value })} className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500" placeholder="Issuer *" />
-              <input type="text" value={certForm.year} onChange={(e) => setCertForm({ ...certForm, year: e.target.value })} className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500" placeholder="Year" />
-              <input type="text" value={certForm.icon} onChange={(e) => setCertForm({ ...certForm, icon: e.target.value })} className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500" placeholder="Icon (emoji)" />
-              <button onClick={handleAddCertification} className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-3 rounded-lg font-medium">{editingCert ? 'Update' : 'Add'} Certification</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showProjectForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-6 z-50 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 max-w-2xl w-full border border-purple-500 shadow-2xl my-8">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-white">{editingProject ? 'Edit Project' : 'Add Project'}</h3>
-              <button onClick={() => { 
-                setShowProjectForm(false); 
-                setError(''); 
-                setEditingProject(null); 
-                setProjectForm({ title: '', description: '', images: [], tags: '', github: '', demo: '', category: 'it' }); 
-              }} className="text-gray-400 hover:text-white"><X size={24} /></button>
-            </div>
-            {error && (
-              <div className="mb-4 p-3 bg-red-500 bg-opacity-20 border border-red-500 rounded-lg flex items-center gap-2 text-red-300">
-                <AlertCircle size={18} /><span className="text-sm">{error}</span>
-              </div>
-            )}
-            <div className="space-y-4">
-              <input 
-                type="text" 
-                value={projectForm.title} 
-                onChange={(e) => setProjectForm({ ...projectForm, title: e.target.value })} 
-                className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500" 
-                placeholder="Project Title *" 
-              />
-              <textarea 
-                value={projectForm.description} 
-                onChange={(e) => setProjectForm({ ...projectForm, description: e.target.value })} 
-                className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500 h-24 resize-none" 
-                placeholder="Description *" 
-              />
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Category *</label>
-                <select 
-                  value={projectForm.category} 
-                  onChange={(e) => setProjectForm({ ...projectForm, category: e.target.value })} 
-                  className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500"
-                >
-                  <option value="it">IT & Development</option>
-                  <option value="automotive">Automotive</option>
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Images ({projectForm.images.length} uploaded) *
-                </label>
-                
-                {projectForm.images.length > 0 && (
-                  <div className="flex gap-2 flex-wrap mb-3">
-                    {projectForm.images.map((img, idx) => (
-                      <div key={idx} className="relative group">
-                        <img 
-                          src={img} 
-                          alt="" 
-                          className="w-20 h-20 object-cover rounded-lg border border-white border-opacity-20" 
-                        />
-                        <button
-                          onClick={() => {
-                            const newImages = projectForm.images.filter((_, i) => i !== idx);
-                            setProjectForm({ ...projectForm, images: newImages });
-                          }}
-                          className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                          type="button"
-                        >
-                          <X size={14} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                
-                <label className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg cursor-pointer transition-colors">
-                  <Plus size={18} />Add Image
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    className="hidden" 
-                    onChange={(e) => handleImageUpload(e, (img) => {
-                      setProjectForm({ 
-                        ...projectForm, 
-                        images: [...projectForm.images, img]
-                      });
-                    })} 
-                  />
-                </label>
-                
-                <input 
-                  type="text" 
-                  placeholder="Or paste image URL here and press Enter"
-                  className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500 mt-2" 
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter' && e.target.value.trim()) {
-                      setProjectForm({ 
-                        ...projectForm, 
-                        images: [...projectForm.images, e.target.value.trim()]
-                      });
-                      e.target.value = '';
-                    }
-                  }}
-                />
-              </div>
-              
-              <input 
-                type="text" 
-                value={projectForm.tags} 
-                onChange={(e) => setProjectForm({ ...projectForm, tags: e.target.value })} 
-                className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500" 
-                placeholder="Tags (comma separated)" 
-              />
-              <div className="grid md:grid-cols-2 gap-4">
-                <input 
-                  type="text" 
-                  value={projectForm.github} 
-                  onChange={(e) => setProjectForm({ ...projectForm, github: e.target.value })} 
-                  className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500" 
-                  placeholder="GitHub URL" 
-                />
-                <input 
-                  type="text" 
-                  value={projectForm.demo} 
-                  onChange={(e) => setProjectForm({ ...projectForm, demo: e.target.value })} 
-                  className="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg text-white focus:outline-none focus:border-purple-500" 
-                  placeholder="Demo URL" 
-                />
-              </div>
-              <button 
-                onClick={handleAddProject} 
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-3 rounded-lg font-medium"
-              >
-                {editingProject ? 'Update' : 'Add'} Project
+              <button className="btn-cyber-secondary w-full flex items-center justify-center gap-2 mt-2"
+                onClick={handleSaveAbout}>
+                <Zap size={14} /> SAVE CHANGES
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {selectedProject && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-6 z-50 backdrop-blur-sm">
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl max-w-4xl w-full border border-purple-500 shadow-2xl max-h-[90vh] overflow-y-auto relative">
-            
-            <ImageCarousel 
-              images={selectedProject.images || []} 
-              projectTitle={selectedProject.title}
-            />
+      {/* ── SKILL FORM MODAL ── */}
+      {showSkillForm && (
+        <div className="fixed inset-0 z-50 cyber-modal-overlay flex items-center justify-center p-6">
+          <div className="relative w-full max-w-md cyber-panel p-8">
+            <HudCorners />
+            <div className="flex items-center justify-between mb-6">
+              <span className="font-orbitron font-bold text-white text-sm">ADD SKILL</span>
+              <button onClick={() => { setShowSkillForm(false); setSkillForm({ name: '', level: 50 }); setError(''); }}
+                style={{ color: 'rgba(200,214,229,0.4)' }}><X size={20} /></button>
+            </div>
+            {error && (
+              <div className="mb-4 font-mono-cyber text-xs p-3"
+                style={{ border: '1px solid rgba(255,0,110,0.3)', color: 'var(--cyber-magenta)' }}>
+                {error}
+              </div>
+            )}
+            <div className="space-y-4">
+              <div>
+                <p className="font-mono-cyber text-xs mb-2" style={{ color: 'rgba(0,212,255,0.5)' }}>SKILL_NAME *</p>
+                <input type="text" value={skillForm.name}
+                  onChange={e => setSkillForm({ ...skillForm, name: e.target.value })}
+                  className="cyber-input" placeholder="e.g. React.js" />
+              </div>
+              <div>
+                <p className="font-mono-cyber text-xs mb-2" style={{ color: 'rgba(0,212,255,0.5)' }}>
+                  PROFICIENCY: <span style={{ color: 'var(--cyber-cyan)' }}>{skillForm.level}%</span>
+                </p>
+                <input type="range" min="0" max="100" value={skillForm.level}
+                  onChange={e => setSkillForm({ ...skillForm, level: parseInt(e.target.value) })}
+                  className="w-full accent-cyan-400" />
+              </div>
+              <button className="btn-cyber-secondary w-full flex items-center justify-center gap-2"
+                onClick={handleAddSkill}>
+                <Plus size={14} /> ADD SKILL
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-            <button 
-              onClick={() => setSelectedProject(null)} 
-              className="absolute top-4 right-4 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full transition-colors z-10"
-            >
-              <X size={24} />
+      {/* ── EXPERIENCE FORM MODAL ── */}
+      {showExpForm && (
+        <div className="fixed inset-0 z-50 cyber-modal-overlay flex items-center justify-center p-6 overflow-y-auto">
+          <div className="relative w-full max-w-2xl cyber-panel p-8 my-8">
+            <HudCorners />
+            <div className="flex items-center justify-between mb-6">
+              <span className="font-orbitron font-bold text-white text-sm">
+                {editingExp ? 'EDIT EXPERIENCE' : 'ADD EXPERIENCE'}
+              </span>
+              <button onClick={() => { setShowExpForm(false); setExpForm({ year: '', position: '', company: '', description: '', achievements: '' }); setEditingExp(null); setError(''); }}
+                style={{ color: 'rgba(200,214,229,0.4)' }}><X size={20} /></button>
+            </div>
+            {error && (
+              <div className="mb-4 font-mono-cyber text-xs p-3"
+                style={{ border: '1px solid rgba(255,0,110,0.3)', color: 'var(--cyber-magenta)' }}>
+                {error}
+              </div>
+            )}
+            <div className="space-y-3">
+              {[
+                { key: 'year', label: 'YEAR', placeholder: '2023 - Present' },
+                { key: 'position', label: 'POSITION *', placeholder: 'e.g. Web Developer' },
+                { key: 'company', label: 'COMPANY *', placeholder: 'e.g. PT. Example' },
+              ].map(f => (
+                <div key={f.key}>
+                  <p className="font-mono-cyber text-xs mb-1.5" style={{ color: 'rgba(0,212,255,0.5)' }}>{f.label}</p>
+                  <input type="text" value={expForm[f.key]}
+                    onChange={e => setExpForm({ ...expForm, [f.key]: e.target.value })}
+                    className="cyber-input" placeholder={f.placeholder} />
+                </div>
+              ))}
+              <div>
+                <p className="font-mono-cyber text-xs mb-1.5" style={{ color: 'rgba(0,212,255,0.5)' }}>DESCRIPTION</p>
+                <textarea value={expForm.description}
+                  onChange={e => setExpForm({ ...expForm, description: e.target.value })}
+                  className="cyber-input" style={{ height: 80 }} placeholder="Role description..." />
+              </div>
+              <div>
+                <p className="font-mono-cyber text-xs mb-1.5" style={{ color: 'rgba(0,212,255,0.5)' }}>
+                  ACHIEVEMENTS <span style={{ color: 'rgba(200,214,229,0.3)' }}>(one per line)</span>
+                </p>
+                <textarea value={expForm.achievements}
+                  onChange={e => setExpForm({ ...expForm, achievements: e.target.value })}
+                  className="cyber-input" style={{ height: 100 }} placeholder="• Achievement 1&#10;• Achievement 2" />
+              </div>
+              <button className="btn-cyber-secondary w-full flex items-center justify-center gap-2 mt-2"
+                onClick={handleAddExperience}>
+                <Zap size={14} /> {editingExp ? 'UPDATE' : 'ADD'} EXPERIENCE
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── CERTIFICATION FORM MODAL ── */}
+      {showCertForm && (
+        <div className="fixed inset-0 z-50 cyber-modal-overlay flex items-center justify-center p-6">
+          <div className="relative w-full max-w-md cyber-panel p-8">
+            <HudCorners />
+            <div className="flex items-center justify-between mb-6">
+              <span className="font-orbitron font-bold text-white text-sm">
+                {editingCert ? 'EDIT CERT' : 'ADD CERT'}
+              </span>
+              <button onClick={() => { setShowCertForm(false); setCertForm({ title: '', issuer: '', year: '', icon: '🎓' }); setEditingCert(null); setError(''); }}
+                style={{ color: 'rgba(200,214,229,0.4)' }}><X size={20} /></button>
+            </div>
+            {error && (
+              <div className="mb-4 font-mono-cyber text-xs p-3"
+                style={{ border: '1px solid rgba(255,0,110,0.3)', color: 'var(--cyber-magenta)' }}>
+                {error}
+              </div>
+            )}
+            <div className="space-y-3">
+              {[
+                { key: 'title', label: 'TITLE *', placeholder: 'Certification name' },
+                { key: 'issuer', label: 'ISSUER *', placeholder: 'e.g. Google, AWS' },
+                { key: 'year', label: 'YEAR', placeholder: '2024' },
+                { key: 'icon', label: 'ICON (emoji)', placeholder: '🎓' },
+              ].map(f => (
+                <div key={f.key}>
+                  <p className="font-mono-cyber text-xs mb-1.5" style={{ color: 'rgba(0,212,255,0.5)' }}>{f.label}</p>
+                  <input type="text" value={certForm[f.key]}
+                    onChange={e => setCertForm({ ...certForm, [f.key]: e.target.value })}
+                    className="cyber-input" placeholder={f.placeholder} />
+                </div>
+              ))}
+              <button className="btn-cyber-secondary w-full flex items-center justify-center gap-2 mt-2"
+                onClick={handleAddCertification}>
+                <Zap size={14} /> {editingCert ? 'UPDATE' : 'ADD'} CERTIFICATION
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── PROJECT FORM MODAL ── */}
+      {showProjectForm && (
+        <div className="fixed inset-0 z-50 cyber-modal-overlay flex items-center justify-center p-6 overflow-y-auto">
+          <div className="relative w-full max-w-2xl cyber-panel p-8 my-8">
+            <HudCorners />
+            <div className="flex items-center justify-between mb-6">
+              <span className="font-orbitron font-bold text-white text-sm">
+                {editingProject ? 'EDIT PROJECT' : 'ADD PROJECT'}
+              </span>
+              <button onClick={() => { setShowProjectForm(false); setError(''); setEditingProject(null); setProjectForm({ title: '', description: '', images: [], tags: '', github: '', demo: '', category: 'it' }); }}
+                style={{ color: 'rgba(200,214,229,0.4)' }}><X size={20} /></button>
+            </div>
+            {error && (
+              <div className="mb-4 flex items-center gap-2 font-mono-cyber text-xs p-3"
+                style={{ border: '1px solid rgba(255,0,110,0.3)', color: 'var(--cyber-magenta)' }}>
+                <AlertCircle size={14} /> {error}
+              </div>
+            )}
+            <div className="space-y-4">
+              <div>
+                <p className="font-mono-cyber text-xs mb-1.5" style={{ color: 'rgba(0,212,255,0.5)' }}>TITLE *</p>
+                <input type="text" value={projectForm.title}
+                  onChange={e => setProjectForm({ ...projectForm, title: e.target.value })}
+                  className="cyber-input" placeholder="Project name" />
+              </div>
+              <div>
+                <p className="font-mono-cyber text-xs mb-1.5" style={{ color: 'rgba(0,212,255,0.5)' }}>DESCRIPTION *</p>
+                <textarea value={projectForm.description}
+                  onChange={e => setProjectForm({ ...projectForm, description: e.target.value })}
+                  className="cyber-input" style={{ height: 80 }} placeholder="Project description" />
+              </div>
+              <div>
+                <p className="font-mono-cyber text-xs mb-1.5" style={{ color: 'rgba(0,212,255,0.5)' }}>CATEGORY</p>
+                <select value={projectForm.category}
+                  onChange={e => setProjectForm({ ...projectForm, category: e.target.value })}
+                  className="cyber-input select-cyber">
+                  <option value="it">IT &amp; Development</option>
+                  <option value="automotive">Automotive</option>
+                </select>
+              </div>
+
+              <div>
+                <p className="font-mono-cyber text-xs mb-2" style={{ color: 'rgba(0,212,255,0.5)' }}>
+                  IMAGES ({projectForm.images.length}) *
+                </p>
+                {projectForm.images.length > 0 && (
+                  <div className="flex gap-2 flex-wrap mb-3">
+                    {projectForm.images.map((img, idx) => (
+                      <div key={idx} className="relative group">
+                        <img src={img} alt=""
+                          className="w-16 h-16 object-cover"
+                          style={{ border: '1px solid rgba(0,212,255,0.2)' }} />
+                        <button onClick={() => setProjectForm({ ...projectForm, images: projectForm.images.filter((_, i) => i !== idx) })}
+                          className="absolute -top-1.5 -right-1.5 w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                          style={{ background: 'var(--cyber-magenta)', color: 'white' }}>
+                          <X size={10} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <label className="btn-cyber-primary text-xs cursor-pointer flex items-center justify-center gap-2 py-2 w-full">
+                  <Plus size={14} /> ADD IMAGE
+                  <input type="file" accept="image/*" className="hidden"
+                    onChange={e => handleImageUpload(e, img => setProjectForm({ ...projectForm, images: [...projectForm.images, img] }))} />
+                </label>
+                <input type="text" placeholder="Or paste image URL + press Enter"
+                  className="cyber-input mt-2" style={{ fontSize: '0.8rem' }}
+                  onKeyPress={e => {
+                    if (e.key === 'Enter' && e.target.value.trim()) {
+                      setProjectForm({ ...projectForm, images: [...projectForm.images, e.target.value.trim()] });
+                      e.target.value = '';
+                    }
+                  }} />
+              </div>
+
+              <div>
+                <p className="font-mono-cyber text-xs mb-1.5" style={{ color: 'rgba(0,212,255,0.5)' }}>TAGS (comma separated)</p>
+                <input type="text" value={projectForm.tags}
+                  onChange={e => setProjectForm({ ...projectForm, tags: e.target.value })}
+                  className="cyber-input" placeholder="React, Node.js, PostgreSQL" />
+              </div>
+              <div className="grid md:grid-cols-2 gap-3">
+                <div>
+                  <p className="font-mono-cyber text-xs mb-1.5" style={{ color: 'rgba(0,212,255,0.5)' }}>GITHUB URL</p>
+                  <input type="text" value={projectForm.github}
+                    onChange={e => setProjectForm({ ...projectForm, github: e.target.value })}
+                    className="cyber-input" placeholder="https://github.com/..." />
+                </div>
+                <div>
+                  <p className="font-mono-cyber text-xs mb-1.5" style={{ color: 'rgba(0,212,255,0.5)' }}>DEMO URL</p>
+                  <input type="text" value={projectForm.demo}
+                    onChange={e => setProjectForm({ ...projectForm, demo: e.target.value })}
+                    className="cyber-input" placeholder="https://..." />
+                </div>
+              </div>
+              <button className="btn-cyber-secondary w-full flex items-center justify-center gap-2 mt-2"
+                onClick={handleAddProject}>
+                <Zap size={14} /> {editingProject ? 'UPDATE' : 'ADD'} PROJECT
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── PROJECT DETAIL MODAL ── */}
+      {selectedProject && (
+        <div className="fixed inset-0 z-50 cyber-modal-overlay flex items-center justify-center p-6">
+          <div className="relative w-full max-w-4xl cyber-panel overflow-hidden max-h-[90vh] overflow-y-auto">
+            <ImageCarousel images={selectedProject.images || []} projectTitle={selectedProject.title} />
+
+            <button onClick={() => setSelectedProject(null)}
+              className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center z-20"
+              style={{ background: 'rgba(2,4,8,0.9)', border: '1px solid rgba(0,212,255,0.3)', color: 'var(--cyber-cyan)' }}>
+              <X size={18} />
             </button>
 
             <div className="p-8">
-              <h3 className="text-3xl font-bold text-white mb-4">{selectedProject.title}</h3>
-              <p className="text-gray-300 mb-6 leading-relaxed">{selectedProject.description}</p>
-              
-              <div className="flex flex-wrap gap-2 mb-6">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <p className="font-mono-cyber text-xs mb-1" style={{ color: 'rgba(0,212,255,0.4)' }}>
+                    {selectedProject.category === 'it' ? '[ IT_DEV ]' : '[ AUTOMOTIVE ]'}
+                  </p>
+                  <h3 className="font-orbitron font-bold text-2xl text-white">{selectedProject.title}</h3>
+                </div>
+              </div>
+
+              <p className="text-gray-400 text-sm mb-6 leading-relaxed">{selectedProject.description}</p>
+
+              <div className="flex flex-wrap gap-2 mb-8">
                 {(selectedProject.tags || []).map((tag, i) => (
-                  <span key={i} className="px-4 py-2 bg-purple-500 bg-opacity-20 text-purple-300 rounded-full text-sm font-medium">{tag}</span>
+                  <span key={i} className="cyber-tag">{tag}</span>
                 ))}
               </div>
-              <div className="flex gap-4">
+
+              <div className="flex gap-3 pt-6" style={{ borderTop: '1px solid rgba(0,212,255,0.08)' }}>
                 {selectedProject.github && (
-                  <a 
-                    href={selectedProject.github} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="flex items-center gap-2 bg-white bg-opacity-10 hover:bg-opacity-20 text-white px-6 py-3 rounded-lg font-medium transition-colors"
-                  >
-                    <Github size={20} />View Code
+                  <a href={selectedProject.github} target="_blank" rel="noopener noreferrer"
+                    className="btn-cyber-primary text-xs flex items-center gap-2 px-5 py-2.5">
+                    <Github size={16} /> SOURCE CODE
                   </a>
                 )}
                 {selectedProject.demo && (
-                  <a 
-                    href={selectedProject.demo} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
-                  >
-                    <ExternalLink size={20} />Live Demo
+                  <a href={selectedProject.demo} target="_blank" rel="noopener noreferrer"
+                    className="btn-cyber-secondary text-xs flex items-center gap-2 px-5 py-2.5">
+                    <ExternalLink size={16} /> LIVE DEMO
                   </a>
                 )}
               </div>
@@ -1276,12 +1412,6 @@ export default function App() {
           </div>
         </div>
       )}
-
-      <footer className="bg-black bg-opacity-30 backdrop-blur-lg border-t border-white border-opacity-10 mt-20">
-        <div className="max-w-7xl mx-auto px-6 py-8 text-center text-gray-400">
-          <p>© 2025 Fikral Andhika Ramadhani. Built with passion and React.</p>
-        </div>
-      </footer>
     </div>
   );
 }
