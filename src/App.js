@@ -557,19 +557,17 @@ export default function App() {
         ) : (
           /* ── ENTER SITE STATE ── */
           <>
-            <p className="font-mono-cyber text-xs mb-6 tracking-widest"
-              style={{ color: 'rgba(0,212,255,0.5)' }}>
-              {'// SYSTEM READY'}
+            <div className="relative mx-auto mb-8" style={{ width: 80, height: 80 }}>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Cpu size={28} style={{ color: 'var(--cyber-neon)' }} />
+              </div>
+            </div>
+            <p className="font-mono-cyber text-sm mb-1" style={{ color: 'var(--cyber-neon)' }}>
+              SYSTEM READY
             </p>
-            <h1 className="font-orbitron font-black text-white mb-2 leading-none"
-              style={{ fontSize: 'clamp(2rem, 6vw, 4rem)' }}>
-              FIKRAL ANDHIKA
-            </h1>
-            <h1 className="font-orbitron font-black mb-8 leading-none"
-              style={{ fontSize: 'clamp(2rem, 6vw, 4rem)', background: 'linear-gradient(135deg, var(--cyber-cyan), var(--cyber-neon))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-              RAMADHANI
-            </h1>
-            <div className="cyber-divider mb-10 mx-auto" style={{ maxWidth: 200 }} />
+            <p className="font-mono-cyber text-xs mb-8" style={{ color: 'rgba(0,212,255,0.4)' }}>
+              Portfolio data loaded.
+            </p>
             <button onClick={handleEnterSite}
               className="btn-cyber-primary flex items-center gap-3 mx-auto text-sm px-10 py-4">
               <Volume2 size={18} />
