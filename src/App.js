@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Plus, X, Eye, Github, ExternalLink, Mail, Linkedin,
   AlertCircle, Edit2, Trash2, Menu, ChevronLeft, ChevronRight,
@@ -9,15 +9,62 @@ import axios from 'axios';
 const API_URL = process.env.REACT_APP_API_URL || 'https://portfolio-backend1-sooty.vercel.app';
 
 /* ─────────────────────────────────────────
+   SCROLL REVEAL HOOK
+───────────────────────────────────────── */
+function useReveal(options = {}) {
+  const ref = useRef(null);
+  const { threshold = 0.15, rootMargin = '0px 0px -60px 0px' } = options;
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.classList.add('is-visible');
+          observer.unobserve(el); // hanya animasi sekali
+        }
+      },
+      { threshold, rootMargin }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [threshold, rootMargin]);
+
+  return ref;
+}
+
+/* ─────────────────────────────────────────
+   REVEAL WRAPPER COMPONENT
+───────────────────────────────────────── */
+const Reveal = ({ children, direction = 'up', delay = 0, className = '', stagger = false, as: Tag = 'div', ...props }) => {
+  const ref = useReveal();
+  const delayClass = delay ? `reveal-delay-${delay}` : '';
+  const dirClass   = stagger ? 'stagger-children' : `reveal reveal-${direction}`;
+  return (
+    <Tag ref={ref} className={`${dirClass} ${delayClass} ${className}`} {...props}>
+      {children}
+    </Tag>
+  );
+};
+
+/* ─────────────────────────────────────────
    HELPERS
 ───────────────────────────────────────── */
-const SectionHeader = ({ label, title, accent = 'cyan' }) => (
-  <div className="mb-12">
-    <p className="section-label mb-2">{'// '}{label}</p>
-    <h3 className={`section-title text-3xl md:text-4xl font-orbitron font-bold`}>{title}</h3>
-    <div className="cyber-divider mt-4 max-w-xs" />
-  </div>
-);
+const SectionHeader = ({ label, title }) => {
+  const lineRef = useReveal({ threshold: 0.5 });
+  return (
+    <div className="mb-12">
+      <Reveal direction="left">
+        <p className="section-label mb-2">{'// '}{label}</p>
+      </Reveal>
+      <Reveal direction="up" delay={1}>
+        <h3 className="section-title text-3xl md:text-4xl font-orbitron font-bold">{title}</h3>
+      </Reveal>
+      <div ref={lineRef} className="cyber-divider mt-4 max-w-xs" />
+    </div>
+  );
+};
 
 const HudCorners = () => (
   <>
@@ -26,6 +73,36 @@ const HudCorners = () => (
   </>
 );
 
+/* ─────────────────────────────────────────
+   SKILL BAR WITH REVEAL ANIMATION
+───────────────────────────────────────── */
+const SkillBar = ({ level }) => {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          // small delay so user sees the bar grow
+          setTimeout(() => el.classList.add('animate'), 100);
+          observer.unobserve(el);
+        }
+      },
+      { threshold: 0.3 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className="skill-bar-fill"
+      style={{ '--skill-level': `${level}%` }}
+    />
+  );
+};
 /* ─────────────────────────────────────────
    IMAGE CAROUSEL
 ───────────────────────────────────────── */
@@ -576,46 +653,60 @@ export default function App() {
 
           <div className="relative z-10 max-w-4xl mx-auto">
             {/* status badge */}
-            <div className="inline-flex items-center gap-2 mb-8 px-4 py-2 font-mono-cyber text-xs"
-              style={{ border: '1px solid rgba(0,255,136,0.3)', background: 'rgba(0,255,136,0.04)', color: 'var(--cyber-neon)' }}>
-              <span className="w-2 h-2 rounded-full bg-current animate-pulse" />
-              SYSTEM ONLINE — AVAILABLE FOR HIRE
-            </div>
+            <Reveal direction="down">
+              <div className="inline-flex items-center gap-2 mb-8 px-4 py-2 font-mono-cyber text-xs"
+                style={{ border: '1px solid rgba(0,255,136,0.3)', background: 'rgba(0,255,136,0.04)', color: 'var(--cyber-neon)' }}>
+                <span className="w-2 h-2 rounded-full bg-current animate-pulse" />
+                SYSTEM ONLINE — AVAILABLE FOR HIRE
+              </div>
+            </Reveal>
 
             {/* main title */}
-            <h2 className="font-orbitron font-black text-white mb-2 leading-none"
-              style={{ fontSize: 'clamp(2.5rem, 8vw, 5.5rem)', letterSpacing: '-1px' }}>
-              FIKRAL ANDHIKA
-            </h2>
-            <h2 className="font-orbitron font-black mb-6 leading-none"
-              style={{ fontSize: 'clamp(2.5rem, 8vw, 5.5rem)', letterSpacing: '-1px', background: 'linear-gradient(135deg, var(--cyber-cyan), var(--cyber-neon))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-              RAMADHANI
-            </h2>
+            <Reveal direction="up" delay={1}>
+              <h2 className="font-orbitron font-black text-white mb-2 leading-none"
+                style={{ fontSize: 'clamp(2.5rem, 8vw, 5.5rem)', letterSpacing: '-1px' }}>
+                FIKRAL ANDHIKA
+              </h2>
+            </Reveal>
+            <Reveal direction="up" delay={2}>
+              <h2 className="font-orbitron font-black mb-6 leading-none"
+                style={{ fontSize: 'clamp(2.5rem, 8vw, 5.5rem)', letterSpacing: '-1px', background: 'linear-gradient(135deg, var(--cyber-cyan), var(--cyber-neon))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                RAMADHANI
+              </h2>
+            </Reveal>
 
-            <p className="font-mono-cyber mb-10 mx-auto max-w-lg leading-relaxed"
-              style={{ color: 'rgba(200,214,229,0.5)', fontSize: '0.85rem' }}>
-              {'>'} Web Developer &amp; Data Analyst<br />
-              {'>'} Automotive Enthusiast
-            </p>
+            <Reveal direction="fade" delay={3}>
+              <p className="font-mono-cyber mb-10 mx-auto max-w-lg leading-relaxed"
+                style={{ color: 'rgba(200,214,229,0.5)', fontSize: '0.85rem' }}>
+                {'>'} Web Developer &amp; Data Analyst<br />
+                {'>'} Automotive Enthusiast
+              </p>
+            </Reveal>
 
             {/* divider with diamond */}
-            <div className="cyber-divider mb-10 mx-auto max-w-xs" />
+            <Reveal direction="fade" delay={3}>
+              <div className="cyber-divider mb-10 mx-auto max-w-xs" />
+            </Reveal>
 
             {/* CTA buttons */}
-            <div className="flex flex-wrap gap-4 justify-center">
-              <button className="btn-cyber-primary" onClick={() => scrollTo('projects')}>
-                VIEW PROJECTS
-              </button>
-              <button className="btn-cyber-secondary" onClick={() => scrollTo('about')}>
-                ABOUT ME
-              </button>
-            </div>
+            <Reveal direction="up" delay={4}>
+              <div className="flex flex-wrap gap-4 justify-center">
+                <button className="btn-cyber-primary" onClick={() => scrollTo('projects')}>
+                  VIEW PROJECTS
+                </button>
+                <button className="btn-cyber-secondary" onClick={() => scrollTo('about')}>
+                  ABOUT ME
+                </button>
+              </div>
+            </Reveal>
 
             {/* scroll indicator */}
-            <div className="mt-20 flex flex-col items-center gap-2">
-              <p className="font-mono-cyber text-xs" style={{ color: 'rgba(0,212,255,0.3)' }}>SCROLL</p>
-              <div className="scroll-indicator" />
-            </div>
+            <Reveal direction="fade" delay={5}>
+              <div className="mt-20 flex flex-col items-center gap-2">
+                <p className="font-mono-cyber text-xs" style={{ color: 'rgba(0,212,255,0.3)' }}>SCROLL</p>
+                <div className="scroll-indicator" />
+              </div>
+            </Reveal>
           </div>
         </section>
 
@@ -636,47 +727,51 @@ export default function App() {
             <div className="grid md:grid-cols-2 gap-12 items-center">
 
               {/* photo */}
-              <div className="relative group">
-                <div className="absolute -inset-px pointer-events-none"
-                  style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.2), transparent 50%, rgba(0,255,136,0.2))', borderRadius: 2 }} />
-                <div className="relative overflow-hidden" style={{ aspectRatio: '4/5' }}>
-                  {aboutData.profileImage ? (
-                    <img src={aboutData.profileImage} alt="Profile"
-                      className="w-full h-full object-cover"
-                      style={{ filter: 'brightness(0.9) contrast(1.1)' }} />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-cyber-navy">
-                      <User size={64} style={{ color: 'rgba(0,212,255,0.2)' }} />
-                    </div>
-                  )}
-                  {/* overlay on hover */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                    style={{ background: 'rgba(2,4,8,0.7)', backdropFilter: 'blur(4px)' }}>
-                    {isAuthenticated && (
-                      <button className="btn-cyber-primary text-xs" onClick={() => setShowAboutForm(true)}>
-                        CHANGE PHOTO
-                      </button>
+              <Reveal direction="left">
+                <div className="relative group">
+                  <div className="absolute -inset-px pointer-events-none"
+                    style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.2), transparent 50%, rgba(0,255,136,0.2))', borderRadius: 2 }} />
+                  <div className="relative overflow-hidden" style={{ aspectRatio: '4/5' }}>
+                    {aboutData.profileImage ? (
+                      <img src={aboutData.profileImage} alt="Profile"
+                        className="w-full h-full object-cover"
+                        style={{ filter: 'brightness(0.9) contrast(1.1)' }} />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-cyber-navy">
+                        <User size={64} style={{ color: 'rgba(0,212,255,0.2)' }} />
+                      </div>
                     )}
+                    {/* overlay on hover */}
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      style={{ background: 'rgba(2,4,8,0.7)', backdropFilter: 'blur(4px)' }}>
+                      {isAuthenticated && (
+                        <button className="btn-cyber-primary text-xs" onClick={() => setShowAboutForm(true)}>
+                          CHANGE PHOTO
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  {/* decorative scan line */}
+                  <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                    <div className="absolute left-0 right-0 h-px"
+                      style={{ background: 'linear-gradient(90deg, transparent, var(--cyber-cyan), transparent)', opacity: 0.3, top: '30%' }} />
                   </div>
                 </div>
-                {/* decorative scan line */}
-                <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                  <div className="absolute left-0 right-0 h-px"
-                    style={{ background: 'linear-gradient(90deg, transparent, var(--cyber-cyan), transparent)', opacity: 0.3, top: '30%' }} />
-                </div>
-              </div>
+              </Reveal>
 
               {/* text content */}
               <div>
-                <div className="mb-6">
-                  <p className="section-label mb-1">BIO.TXT</p>
-                  <div className="w-8 h-px" style={{ background: 'var(--cyber-cyan)' }} />
-                </div>
-                <p className="text-gray-400 mb-4 leading-relaxed text-sm">{aboutData.bio1}</p>
-                <p className="text-gray-400 mb-8 leading-relaxed text-sm">{aboutData.bio2}</p>
+                <Reveal direction="right">
+                  <div className="mb-6">
+                    <p className="section-label mb-1">BIO.TXT</p>
+                    <div className="w-8 h-px" style={{ background: 'var(--cyber-cyan)' }} />
+                  </div>
+                  <p className="text-gray-400 mb-4 leading-relaxed text-sm">{aboutData.bio1}</p>
+                  <p className="text-gray-400 mb-8 leading-relaxed text-sm">{aboutData.bio2}</p>
+                </Reveal>
 
                 {/* stats grid */}
-                <div className="grid grid-cols-2 gap-3">
+                <Reveal stagger className="grid grid-cols-2 gap-3">
                   {aboutData.stats.map((stat, i) => (
                     <div key={i} className="stat-card">
                       <p className="font-orbitron font-bold text-2xl mb-1"
@@ -688,7 +783,7 @@ export default function App() {
                       </p>
                     </div>
                   ))}
-                </div>
+                </Reveal>
               </div>
             </div>
           </div>
@@ -698,7 +793,7 @@ export default function App() {
         <section id="skills" className="max-w-7xl mx-auto px-6 py-24">
           <SectionHeader label="02 / CAPABILITIES" title="My Skills" />
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <Reveal stagger className="grid md:grid-cols-3 gap-6">
             {Object.keys(skills).map((category, catIdx) => (
               <div key={category} className="cyber-panel relative p-6">
                 <HudCorners />
@@ -738,14 +833,14 @@ export default function App() {
                         </div>
                       </div>
                       <div className="skill-bar-track">
-                        <div className="skill-bar-fill" style={{ width: `${skill.level}%` }} />
+                        <SkillBar level={skill.level} />
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
             ))}
-          </div>
+          </Reveal>
         </section>
 
         {/* ── EXPERIENCE ── */}
@@ -762,7 +857,8 @@ export default function App() {
 
           <div className="space-y-6">
             {experiences.map((exp, i) => (
-              <div key={exp.id} className="cyber-panel relative p-6 md:p-8 group">
+              <Reveal key={exp.id} direction="up" delay={Math.min(i + 1, 3)}>
+                <div className="cyber-panel relative p-6 md:p-8 group">
                 <HudCorners />
                 {/* index badge */}
                 <div className="absolute top-6 left-6 font-mono-cyber text-xs"
@@ -823,7 +919,7 @@ export default function App() {
                     </div>
                   )}
                 </div>
-              </div>
+              </Reveal>
             ))}
           </div>
         </section>
@@ -840,7 +936,7 @@ export default function App() {
             )}
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <Reveal stagger className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {certifications.map(cert => (
               <div key={cert.id} className="cert-card p-6 group relative">
                 {isAuthenticated && (
@@ -870,7 +966,7 @@ export default function App() {
                 </div>
               </div>
             ))}
-          </div>
+          </Reveal>
         </section>
 
         {/* ── PROJECTS ── */}
@@ -901,7 +997,7 @@ export default function App() {
             ))}
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Reveal stagger className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProjects.map(project => (
               <div key={project.id} className="project-card cyber-panel group relative">
                 {/* image */}
@@ -982,7 +1078,7 @@ export default function App() {
                 </div>
               </div>
             ))}
-          </div>
+          </Reveal>
         </section>
       </main>
 

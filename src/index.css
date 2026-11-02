@@ -657,3 +657,92 @@ textarea.cyber-input {
   background: #060d14;
   color: #c8d6e5;
 }
+
+/* ============================================
+   SCROLL REVEAL ANIMATIONS
+   ============================================ */
+
+/* Base hidden state - semua elemen reveal mulai dari sini */
+.reveal {
+  opacity: 0;
+  transition-property: opacity, transform;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  transition-duration: 0.7s;
+}
+
+/* Visible state - ditambah JS via Intersection Observer */
+.reveal.is-visible {
+  opacity: 1;
+  transform: none !important;
+}
+
+/* Directional variants */
+.reveal-up {
+  transform: translateY(40px);
+}
+
+.reveal-down {
+  transform: translateY(-30px);
+}
+
+.reveal-left {
+  transform: translateX(-50px);
+}
+
+.reveal-right {
+  transform: translateX(50px);
+}
+
+.reveal-scale {
+  transform: scale(0.92);
+}
+
+.reveal-fade {
+  transform: none;
+}
+
+/* Delay utilities */
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-5 { transition-delay: 0.5s; }
+.reveal-delay-6 { transition-delay: 0.6s; }
+
+/* Neon line draw animation on section reveal */
+@keyframes drawLine {
+  from { width: 0; opacity: 0; }
+  to   { width: 100%; opacity: 0.4; }
+}
+
+.cyber-divider.is-visible {
+  animation: drawLine 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Stagger children - dipakai di grid container */
+.stagger-children > * {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.stagger-children.is-visible > *:nth-child(1) { opacity: 1; transform: none; transition-delay: 0.05s; }
+.stagger-children.is-visible > *:nth-child(2) { opacity: 1; transform: none; transition-delay: 0.12s; }
+.stagger-children.is-visible > *:nth-child(3) { opacity: 1; transform: none; transition-delay: 0.19s; }
+.stagger-children.is-visible > *:nth-child(4) { opacity: 1; transform: none; transition-delay: 0.26s; }
+.stagger-children.is-visible > *:nth-child(5) { opacity: 1; transform: none; transition-delay: 0.33s; }
+.stagger-children.is-visible > *:nth-child(6) { opacity: 1; transform: none; transition-delay: 0.40s; }
+.stagger-children.is-visible > *:nth-child(7) { opacity: 1; transform: none; transition-delay: 0.47s; }
+.stagger-children.is-visible > *:nth-child(8) { opacity: 1; transform: none; transition-delay: 0.54s; }
+.stagger-children.is-visible > *:nth-child(n+9) { opacity: 1; transform: none; transition-delay: 0.6s; }
+
+/* Skill bar reveal - width animate dari 0 */
+.skill-bar-fill {
+  width: 0 !important;
+  transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.skill-bar-fill.animate {
+  width: var(--skill-level) !important;
+}
