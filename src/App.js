@@ -574,7 +574,7 @@ export default function App() {
             {/* top label */}
             <p className="font-mono-cyber text-xs mb-6 tracking-widest"
               style={{ color: 'rgba(0,212,255,0.5)' }}>
-              // INITIALIZING PORTFOLIO_v1.0
+              {'// INITIALIZING PORTFOLIO_v1.0'}
             </p>
 
             {/* name */}
