@@ -750,7 +750,7 @@ export default function App() {
             <div className="relative grid grid-cols-1 md:grid-cols-3 items-center" style={{ minHeight: 'auto' }}>
 
               {/* ── LEFT: name + button only ── */}
-              <Reveal direction="left" className="p-6 md:p-10 text-center md:text-left self-center order-1 md:order-none">
+              <Reveal direction="left" className="p-6 md:p-10 text-center md:text-left self-center order-2 md:order-none">
                 <p className="font-mono-cyber text-sm mb-2" style={{ color: 'var(--cyber-cyan)' }}>
                   Hi, I'm
                 </p>
@@ -814,7 +814,7 @@ export default function App() {
               </Reveal>
 
               {/* ── RIGHT: bio only ── */}
-              <Reveal direction="right" className="p-6 md:p-10 text-center md:text-left self-center">
+              <Reveal direction="right" className="p-6 md:p-10 text-center md:text-left self-center order-3 md:order-none">
                 <p className="section-label mb-3">BIO.TXT</p>
                 <div className="w-8 h-px mb-4" style={{ background: 'var(--cyber-cyan)' }} />
                 <p className="text-gray-400 text-sm leading-relaxed mb-4" style={{ maxWidth: 280 }}>
