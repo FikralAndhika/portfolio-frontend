@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   Plus, X, Eye, Github, ExternalLink, Mail, Linkedin,
   AlertCircle, Edit2, Trash2, Menu, ChevronLeft, ChevronRight,
-  Shield, Cpu, Zap, Lock, User, Code2
+  Shield, Cpu, Zap, Lock, User, Code2, Volume2, VolumeX
 } from 'lucide-react';
 import axios from 'axios';
 
@@ -223,6 +223,8 @@ export default function App() {
   const [showSkillForm, setShowSkillForm]     = useState(false);
   const [showExpForm, setShowExpForm]         = useState(false);
   const [showCertForm, setShowCertForm]       = useState(false);
+  const [isMuted, setIsMuted]                 = useState(true);
+  const audioRef                              = useRef(null);
 
   const correctPassword = 'admin123';
 
@@ -293,6 +295,29 @@ export default function App() {
   useEffect(() => { loadAllData(); }, []);
 
   useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    // start muted, play on first user interaction
+    audio.volume = 0.3;
+    audio.loop   = true;
+    audio.muted  = true;
+    const startAudio = () => {
+      audio.play().then(() => {
+        audio.muted = false;
+        setIsMuted(false);
+      }).catch(() => {});
+      document.removeEventListener('click', startAudio);
+      document.removeEventListener('touchstart', startAudio);
+    };
+    document.addEventListener('click', startAudio);
+    document.addEventListener('touchstart', startAudio);
+    return () => {
+      document.removeEventListener('click', startAudio);
+      document.removeEventListener('touchstart', startAudio);
+    };
+  }, []);
+
+  useEffect(() => {
     const handleScroll = () => {
       const sections = ['home', 'about', 'skills', 'experience', 'certifications', 'projects'];
       const pos = window.scrollY + 150;
@@ -304,6 +329,19 @@ export default function App() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const toggleMute = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (isMuted) {
+      audio.muted = false;
+      audio.play().catch(() => {});
+      setIsMuted(false);
+    } else {
+      audio.muted = true;
+      setIsMuted(true);
+    }
+  };
 
   const scrollTo = (id) => {
     const el = document.getElementById(id);
@@ -525,6 +563,9 @@ export default function App() {
   return (
     <div className="min-h-screen bg-cyber-black scanlines" style={{ backgroundImage: 'radial-gradient(ellipse at 50% 0%, rgba(0,212,255,0.04) 0%, transparent 60%)' }}>
 
+      {/* Audio player */}
+      <audio ref={audioRef} src="/music/moodgame.mp3" loop preload="auto" />
+
       {/* Grid background */}
       <div className="fixed inset-0 bg-cyber-grid pointer-events-none" style={{ backgroundSize: '40px 40px', zIndex: 0 }} />
 
@@ -606,6 +647,12 @@ export default function App() {
                   <Lock size={12} /> LOGOUT
                 </button>
               )}
+              {/* Music toggle */}
+              <button onClick={toggleMute} title={isMuted ? 'Play music' : 'Mute music'}
+                className="w-8 h-8 flex items-center justify-center transition-all"
+                style={{ border: `1px solid ${isMuted ? 'rgba(0,212,255,0.2)' : 'var(--cyber-neon)'}`, color: isMuted ? 'rgba(200,214,229,0.4)' : 'var(--cyber-neon)', boxShadow: isMuted ? 'none' : '0 0 8px var(--glow-neon)' }}>
+                {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
+              </button>
               <button onClick={() => setShowMobileMenu(true)} className="md:hidden" style={{ color: 'var(--cyber-cyan)' }}>
                 <Menu size={22} />
               </button>
