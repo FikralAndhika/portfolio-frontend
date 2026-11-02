@@ -747,10 +747,10 @@ export default function App() {
             <div className="absolute bottom-4 left-4 pointer-events-none" style={{ width: 24, height: 24, borderBottom: '1px solid rgba(0,212,255,0.4)', borderLeft: '1px solid rgba(0,212,255,0.4)' }} />
             <div className="absolute bottom-4 right-4 pointer-events-none" style={{ width: 24, height: 24, borderBottom: '1px solid rgba(0,212,255,0.4)', borderRight: '1px solid rgba(0,212,255,0.4)' }} />
 
-            <div className="relative grid grid-cols-1 md:grid-cols-3 items-center" style={{ minHeight: 'auto' }}>
+            <div className="relative grid grid-cols-1 sm:grid-cols-3 items-center" style={{ minHeight: 'auto' }}>
 
               {/* ── LEFT: name + button only ── */}
-              <Reveal direction="left" className="p-6 md:p-10 text-center md:text-left self-center order-2 md:order-none">
+              <Reveal direction="left" className="p-6 sm:p-10 text-center sm:text-left self-center order-2 sm:order-none">
                 <p className="font-mono-cyber text-sm mb-2" style={{ color: 'var(--cyber-cyan)' }}>
                   Hi, I'm
                 </p>
@@ -761,7 +761,7 @@ export default function App() {
                     Ramadhani
                   </span>
                 </h2>
-                <div className="flex justify-center md:justify-start">
+                <div className="flex justify-center sm:justify-start">
                   <button className="btn-cyber-primary text-xs flex items-center gap-2"
                     onClick={() => scrollTo('projects')}>
                     <Code2 size={14} /> VIEW PROJECTS
@@ -770,7 +770,7 @@ export default function App() {
               </Reveal>
 
               {/* ── CENTER: photo ── */}
-              <Reveal direction="up" className="relative flex justify-center items-end order-first md:order-none">
+              <Reveal direction="up" className="relative flex justify-center items-end order-first sm:order-none">
                 {/* ground glow */}
                 <div className="absolute bottom-0 left-1/2 -translate-x-1/2 pointer-events-none"
                   style={{ width: '90%', height: 80, background: 'radial-gradient(ellipse, rgba(0,212,255,0.25) 0%, transparent 70%)', filter: 'blur(12px)' }} />
@@ -814,7 +814,7 @@ export default function App() {
               </Reveal>
 
               {/* ── RIGHT: bio only ── */}
-              <Reveal direction="right" className="p-6 md:p-10 text-center md:text-left self-center order-3 md:order-none">
+              <Reveal direction="right" className="p-6 sm:p-10 text-center sm:text-left self-center order-3 sm:order-none">
                 <p className="section-label mb-3">BIO.TXT</p>
                 <div className="w-8 h-px mb-4" style={{ background: 'var(--cyber-cyan)' }} />
                 <p className="text-gray-400 text-sm leading-relaxed mb-4" style={{ maxWidth: 280 }}>
