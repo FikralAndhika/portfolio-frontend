@@ -129,7 +129,7 @@ const ImageCarousel = ({ images, projectTitle }) => {
 
   if (!images || images.length === 0)
     return (
-      <div className="w-full h-64 bg-cyber-navy flex items-center justify-center">
+      <div className="w-full h-48 md:h-64 bg-cyber-navy flex items-center justify-center">
         <p className="font-mono-cyber text-sm" style={{ color: 'rgba(0,212,255,0.4)' }}>
           [ NO IMAGE DATA ]
         </p>
@@ -140,7 +140,7 @@ const ImageCarousel = ({ images, projectTitle }) => {
     return (
       <img
         src={images[0]} alt={projectTitle}
-        className="w-full h-96 object-contain bg-cyber-dark"
+        className="w-full h-56 md:h-96 object-contain bg-cyber-dark"
         onError={e => { e.target.src = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80'; }}
       />
     );
@@ -148,7 +148,7 @@ const ImageCarousel = ({ images, projectTitle }) => {
   return (
     <div className="relative">
       <div
-        className="relative h-96 overflow-hidden group"
+        className="relative h-56 md:h-96 overflow-hidden group"
         onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}
       >
         <img
@@ -632,10 +632,17 @@ export default function App() {
                 </button>
               ))}
             </nav>
-            <div className="p-6 flex gap-4" style={{ borderTop: '1px solid rgba(0,212,255,0.1)' }}>
+            <div className="p-6 flex gap-4 items-center" style={{ borderTop: '1px solid rgba(0,212,255,0.1)' }}>
               <a href="mailto:email@example.com" style={{ color: 'rgba(200,214,229,0.5)' }}><Mail size={22} /></a>
               <a href="https://github.com" target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(200,214,229,0.5)' }}><Github size={22} /></a>
               <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(200,214,229,0.5)' }}><Linkedin size={22} /></a>
+              {isAuthenticated && (
+                <button onClick={() => { setIsAuthenticated(false); setShowMobileMenu(false); }}
+                  className="ml-auto flex items-center gap-1 font-mono-cyber text-xs px-3 py-1.5"
+                  style={{ border: '1px solid var(--cyber-magenta)', color: 'var(--cyber-magenta)' }}>
+                  <Lock size={12} /> LOGOUT
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -667,13 +674,13 @@ export default function App() {
             {/* main title */}
             <Reveal direction="up" delay={1}>
               <h2 className="font-orbitron font-black text-white mb-2 leading-none"
-                style={{ fontSize: 'clamp(2.5rem, 8vw, 5.5rem)', letterSpacing: '-1px' }}>
+                style={{ fontSize: 'clamp(1.8rem, 7vw, 5.5rem)', letterSpacing: '-1px' }}>
                 FIKRAL ANDHIKA
               </h2>
             </Reveal>
             <Reveal direction="up" delay={2}>
               <h2 className="font-orbitron font-black mb-6 leading-none"
-                style={{ fontSize: 'clamp(2.5rem, 8vw, 5.5rem)', letterSpacing: '-1px', background: 'linear-gradient(135deg, var(--cyber-cyan), var(--cyber-neon))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                style={{ fontSize: 'clamp(1.8rem, 7vw, 5.5rem)', letterSpacing: '-1px', background: 'linear-gradient(135deg, var(--cyber-cyan), var(--cyber-neon))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                 RAMADHANI
               </h2>
             </Reveal>
@@ -705,7 +712,7 @@ export default function App() {
 
             {/* scroll indicator */}
             <Reveal direction="fade" delay={5}>
-              <div className="mt-20 flex flex-col items-center gap-2">
+              <div className="mt-10 flex flex-col items-center gap-2">
                 <p className="font-mono-cyber text-xs" style={{ color: 'rgba(0,212,255,0.3)' }}>SCROLL</p>
                 <div className="scroll-indicator" />
               </div>
@@ -727,7 +734,6 @@ export default function App() {
 
           {/* ── ABOUT HERO LAYOUT ── */}
           <div className="relative overflow-hidden" style={{
-            minHeight: 560,
             background: 'transparent',
             border: '1px solid rgba(0,212,255,0.08)',
           }}>
@@ -741,10 +747,10 @@ export default function App() {
             <div className="absolute bottom-4 left-4 pointer-events-none" style={{ width: 24, height: 24, borderBottom: '1px solid rgba(0,212,255,0.4)', borderLeft: '1px solid rgba(0,212,255,0.4)' }} />
             <div className="absolute bottom-4 right-4 pointer-events-none" style={{ width: 24, height: 24, borderBottom: '1px solid rgba(0,212,255,0.4)', borderRight: '1px solid rgba(0,212,255,0.4)' }} />
 
-            <div className="relative grid md:grid-cols-3 items-center h-full" style={{ minHeight: 560 }}>
+            <div className="relative grid grid-cols-1 md:grid-cols-3 items-center" style={{ minHeight: 'auto' }}>
 
               {/* ── LEFT: name + button only ── */}
-              <Reveal direction="left" className="p-8 md:p-10 self-center">
+              <Reveal direction="left" className="p-6 md:p-10 text-center md:text-left self-center order-1 md:order-none">
                 <p className="font-mono-cyber text-sm mb-2" style={{ color: 'var(--cyber-cyan)' }}>
                   Hi, I'm
                 </p>
@@ -755,14 +761,16 @@ export default function App() {
                     Ramadhani
                   </span>
                 </h2>
-                <button className="btn-cyber-primary text-xs flex items-center gap-2"
-                  onClick={() => scrollTo('projects')}>
-                  <Code2 size={14} /> VIEW PROJECTS
-                </button>
+                <div className="flex justify-center md:justify-start">
+                  <button className="btn-cyber-primary text-xs flex items-center gap-2"
+                    onClick={() => scrollTo('projects')}>
+                    <Code2 size={14} /> VIEW PROJECTS
+                  </button>
+                </div>
               </Reveal>
 
               {/* ── CENTER: photo ── */}
-              <Reveal direction="up" className="relative flex justify-center items-center self-stretch">
+              <Reveal direction="up" className="relative flex justify-center items-end order-first md:order-none">
                 {/* ground glow */}
                 <div className="absolute bottom-0 left-1/2 -translate-x-1/2 pointer-events-none"
                   style={{ width: '90%', height: 80, background: 'radial-gradient(ellipse, rgba(0,212,255,0.25) 0%, transparent 70%)', filter: 'blur(12px)' }} />
@@ -773,7 +781,7 @@ export default function App() {
                       src={aboutData.profileImage}
                       alt="Fikral Andhika"
                       style={{
-                        height: 520,
+                        height: 'clamp(260px, 48vw, 520px)',
                         width: 'auto',
                         maxWidth: '100%',
                         objectFit: 'contain',
@@ -794,7 +802,7 @@ export default function App() {
                     )}
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center" style={{ height: 520 }}>
+                  <div className="flex flex-col items-center justify-center py-12">
                     <User size={80} style={{ color: 'rgba(0,212,255,0.15)' }} />
                     {isAuthenticated && (
                       <button className="btn-cyber-primary text-xs mt-6" onClick={() => setShowAboutForm(true)}>
@@ -806,7 +814,7 @@ export default function App() {
               </Reveal>
 
               {/* ── RIGHT: bio only ── */}
-              <Reveal direction="right" className="p-8 md:p-10 self-center">
+              <Reveal direction="right" className="p-6 md:p-10 text-center md:text-left self-center">
                 <p className="section-label mb-3">BIO.TXT</p>
                 <div className="w-8 h-px mb-4" style={{ background: 'var(--cyber-cyan)' }} />
                 <p className="text-gray-400 text-sm leading-relaxed mb-4" style={{ maxWidth: 280 }}>
@@ -824,9 +832,12 @@ export default function App() {
             <Reveal stagger className="grid grid-cols-2 md:grid-cols-4"
               style={{ borderTop: '1px solid rgba(0,212,255,0.08)' }}>
               {aboutData.stats.map((stat, i) => (
-                <div key={i} className="flex flex-col items-center justify-center py-6 px-4"
-                  style={{ borderRight: i < 3 ? '1px solid rgba(0,212,255,0.08)' : 'none' }}>
-                  <span className="font-orbitron font-bold text-3xl mb-1"
+                <div key={i} className="flex flex-col items-center justify-center py-5 px-4"
+                  style={{
+                    borderRight: '1px solid rgba(0,212,255,0.08)',
+                    borderBottom: i < 2 ? '1px solid rgba(0,212,255,0.08)' : 'none',
+                  }}>
+                  <span className="font-orbitron font-bold text-2xl md:text-3xl mb-1"
                     style={{ color: i % 2 === 0 ? 'var(--cyber-cyan)' : 'var(--cyber-neon)' }}>
                     {stat.value}
                   </span>
@@ -843,7 +854,7 @@ export default function App() {
         <section id="skills" className="max-w-7xl mx-auto px-6 py-24">
           <SectionHeader label="02 / CAPABILITIES" title="My Skills" />
 
-          <Reveal stagger className="grid md:grid-cols-3 gap-6">
+          <Reveal stagger className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
             {Object.keys(skills).map((category, catIdx) => (
               <div key={category} className="cyber-panel relative p-6">
                 <HudCorners />
@@ -987,7 +998,7 @@ export default function App() {
             )}
           </div>
 
-          <Reveal stagger className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <Reveal stagger className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {certifications.map(cert => (
               <div key={cert.id} className="cert-card p-6 group relative">
                 {isAuthenticated && (
@@ -1052,7 +1063,7 @@ export default function App() {
             {filteredProjects.map(project => (
               <div key={project.id} className="project-card cyber-panel group relative">
                 {/* image */}
-                <div className="relative overflow-hidden" style={{ height: 200 }}>
+                <div className="relative overflow-hidden" style={{ height: 180 }}>
                   <img
                     src={Array.isArray(project.images) && project.images.length > 0
                       ? project.images[0]

@@ -180,6 +180,14 @@ body {
   );
   pointer-events: none;
   z-index: 9999;
+  will-change: transform;
+}
+
+/* disable scanline on mobile for performance */
+@media (max-width: 768px) {
+  .scanlines::after {
+    display: none;
+  }
 }
 
 /* ============================================
@@ -759,4 +767,36 @@ textarea.cyber-input {
   5%   { opacity: 0.15; }
   95%  { opacity: 0.15; }
   100% { top: 100%; opacity: 0; }
+}
+
+/* ============================================
+   PREFERS REDUCED MOTION
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal-up,
+  .reveal-down,
+  .reveal-left,
+  .reveal-right,
+  .reveal-scale,
+  .reveal-fade {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .stagger-children > * {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .skill-bar-fill {
+    width: var(--skill-level) !important;
+    transition: none !important;
+  }
+
+  .about-scan-line {
+    display: none;
+  }
 }
