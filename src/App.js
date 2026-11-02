@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   Plus, X, Eye, Github, ExternalLink, Mail, Linkedin,
   AlertCircle, Edit2, Trash2, Menu, ChevronLeft, ChevronRight,
-  Shield, Cpu, Zap, Lock, User, Code2, Volume2, VolumeX
+  Shield, Cpu, Zap, Lock, User, Code2, VolumeX, Volume2
 } from 'lucide-react';
 import axios from 'axios';
 
@@ -534,51 +534,43 @@ export default function App() {
     <div className="min-h-screen bg-cyber-black bg-cyber-grid flex items-center justify-center"
       style={{ backgroundSize: '40px 40px' }}>
 
-      {/* audio hidden */}
       <audio ref={audioRef} src="/music/moodgame.mp3" loop preload="auto" />
 
       <div className="text-center px-8">
-        {loading ? (
-          /* ── LOADING STATE ── */
-          <>
-            <div className="relative mx-auto mb-8" style={{ width: 80, height: 80 }}>
-              <div className="loading-ring absolute inset-0 rounded-full" style={{ width: 80, height: 80 }} />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Cpu size={28} style={{ color: 'var(--cyber-cyan)' }} />
-              </div>
+        {/* spinner — fade out saat ready */}
+        <div style={{ transition: 'opacity 0.6s ease, transform 0.6s ease', opacity: loading ? 1 : 0, transform: loading ? 'translateY(0)' : 'translateY(-16px)', pointerEvents: 'none', position: loading ? 'relative' : 'absolute' }}>
+          <div className="relative mx-auto mb-8" style={{ width: 80, height: 80 }}>
+            <div className="loading-ring absolute inset-0 rounded-full" style={{ width: 80, height: 80 }} />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Cpu size={28} style={{ color: 'var(--cyber-cyan)' }} />
             </div>
-            <p className="font-mono-cyber text-sm mb-1" style={{ color: 'var(--cyber-cyan)' }}>
-              INITIALIZING SYSTEM
-            </p>
-            <p className="font-mono-cyber text-xs" style={{ color: 'rgba(0,212,255,0.4)' }}>
-              Loading portfolio data...
-            </p>
-          </>
-        ) : (
-          /* ── ENTER SITE STATE ── */
-          <>
-            <div className="relative mx-auto mb-8" style={{ width: 80, height: 80 }}>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Cpu size={28} style={{ color: 'var(--cyber-neon)' }} />
-              </div>
+          </div>
+          <p className="font-mono-cyber text-sm mb-1" style={{ color: 'var(--cyber-cyan)' }}>
+            INITIALIZING SYSTEM
+          </p>
+          <p className="font-mono-cyber text-xs" style={{ color: 'rgba(0,212,255,0.4)' }}>
+            Loading portfolio data...
+          </p>
+        </div>
+
+        {/* enter site — fade in saat ready */}
+        <div style={{ transition: 'opacity 0.6s ease 0.3s, transform 0.6s ease 0.3s', opacity: loading ? 0 : 1, transform: loading ? 'translateY(16px)' : 'translateY(0)', pointerEvents: loading ? 'none' : 'auto', position: loading ? 'absolute' : 'relative' }}>
+          <div className="relative mx-auto mb-8" style={{ width: 80, height: 80 }}>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Cpu size={28} style={{ color: 'var(--cyber-neon)' }} />
             </div>
-            <p className="font-mono-cyber text-sm mb-1" style={{ color: 'var(--cyber-neon)' }}>
-              SYSTEM READY
-            </p>
-            <p className="font-mono-cyber text-xs mb-8" style={{ color: 'rgba(0,212,255,0.4)' }}>
-              Portfolio data loaded.
-            </p>
-            <button onClick={handleEnterSite}
-              className="btn-cyber-primary flex items-center gap-3 mx-auto text-sm px-10 py-4">
-              <Volume2 size={18} />
-              ENTER SITE
-            </button>
-            <p className="font-mono-cyber text-xs mt-5"
-              style={{ color: 'rgba(200,214,229,0.2)' }}>
-              click to enter with music
-            </p>
-          </>
-        )}
+          </div>
+          <p className="font-mono-cyber text-sm mb-1" style={{ color: 'var(--cyber-neon)' }}>
+            SYSTEM READY
+          </p>
+          <p className="font-mono-cyber text-xs mb-8" style={{ color: 'rgba(0,212,255,0.4)' }}>
+            Portfolio data loaded.
+          </p>
+          <button onClick={handleEnterSite}
+            className="btn-cyber-primary mx-auto text-sm px-10 py-4">
+            ENTER SITE
+          </button>
+        </div>
       </div>
     </div>
   );
