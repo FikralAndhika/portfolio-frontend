@@ -532,7 +532,7 @@ export default function App() {
   ───────────────────────────────────────── */
   if (loading || showEnterSite) return (
     <div className="min-h-screen bg-cyber-black bg-cyber-grid flex items-center justify-center"
-      style={{ backgroundSize: '40px 40px', backgroundImage: 'radial-gradient(ellipse at center, rgba(0,212,255,0.05) 0%, transparent 60%)' }}>
+      style={{ backgroundSize: '40px 40px' }}>
 
       {/* audio hidden */}
       <audio ref={audioRef} src="/music/moodgame.mp3" loop preload="auto" />
