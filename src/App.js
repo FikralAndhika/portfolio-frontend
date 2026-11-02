@@ -494,15 +494,6 @@ export default function App() {
     } catch (err) { console.error(err); }
   };
 
-  const stars = React.useMemo(() =>
-    [...Array(60)].map((_, i) => ({
-      id: i,
-      width: Math.random() * 2 + 1,
-      top: Math.random() * 100,
-      left: Math.random() * 100,
-      opacity: Math.random() * 0.5 + 0.1,
-    }))
-  , []);
   const filteredProjects = projects.filter(p => projectCategory === 'all' || p.category === projectCategory);
   const NAV_SECTIONS = ['home', 'about', 'skills', 'experience', 'certifications', 'projects'];
 
@@ -737,15 +728,9 @@ export default function App() {
           {/* ── ABOUT HERO LAYOUT ── */}
           <div className="relative overflow-hidden" style={{
             minHeight: 480,
-            background: 'radial-gradient(ellipse at 20% 50%, rgba(0,30,60,0.8) 0%, rgba(2,4,8,1) 60%), radial-gradient(ellipse at 80% 50%, rgba(0,20,40,0.6) 0%, transparent 60%)',
+            background: 'transparent',
             border: '1px solid rgba(0,212,255,0.08)',
           }}>
-
-            {/* stars background */}
-            {stars.map(s => (
-              <div key={s.id} className="absolute rounded-full pointer-events-none"
-                style={{ width: s.width, height: s.width, top: `${s.top}%`, left: `${s.left}%`, background: 'white', opacity: s.opacity }} />
-            ))}
 
             {/* subtle grid */}
             <div className="absolute inset-0 bg-cyber-grid pointer-events-none" style={{ backgroundSize: '40px 40px', opacity: 0.3 }} />
