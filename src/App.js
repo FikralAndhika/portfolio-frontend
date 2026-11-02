@@ -22,7 +22,9 @@ function useReveal(options = {}) {
       ([entry]) => {
         if (entry.isIntersecting) {
           el.classList.add('is-visible');
-          observer.unobserve(el); // hanya animasi sekali
+        } else {
+          // reset saat keluar viewport — animasi ulang saat scroll balik
+          el.classList.remove('is-visible');
         }
       },
       { threshold, rootMargin }
@@ -84,9 +86,10 @@ const SkillBar = ({ level }) => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          // small delay so user sees the bar grow
           setTimeout(() => el.classList.add('animate'), 100);
-          observer.unobserve(el);
+        } else {
+          // reset saat keluar — animasi ulang saat scroll balik
+          el.classList.remove('animate');
         }
       },
       { threshold: 0.3 }
