@@ -530,21 +530,57 @@ export default function App() {
   /* ─────────────────────────────────────────
      LOADING SCREEN
   ───────────────────────────────────────── */
-  if (loading) return (
-    <div className="min-h-screen bg-cyber-black bg-cyber-grid flex items-center justify-center" style={{ backgroundSize: '40px 40px' }}>
-      <div className="text-center">
-        <div className="relative mx-auto mb-8" style={{ width: 80, height: 80 }}>
-          <div className="loading-ring absolute inset-0 rounded-full" style={{ width: 80, height: 80 }} />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <Cpu size={28} style={{ color: 'var(--cyber-cyan)' }} />
-          </div>
-        </div>
-        <p className="font-mono-cyber text-sm mb-1" style={{ color: 'var(--cyber-cyan)' }}>
-          INITIALIZING SYSTEM
-        </p>
-        <p className="font-mono-cyber text-xs" style={{ color: 'rgba(0,212,255,0.4)' }}>
-          Loading portfolio data...
-        </p>
+  if (loading || showEnterSite) return (
+    <div className="min-h-screen bg-cyber-black bg-cyber-grid flex items-center justify-center"
+      style={{ backgroundSize: '40px 40px', backgroundImage: 'radial-gradient(ellipse at center, rgba(0,212,255,0.05) 0%, transparent 60%)' }}>
+
+      {/* audio hidden */}
+      <audio ref={audioRef} src="/music/moodgame.mp3" loop preload="auto" />
+
+      <div className="text-center px-8">
+        {loading ? (
+          /* ── LOADING STATE ── */
+          <>
+            <div className="relative mx-auto mb-8" style={{ width: 80, height: 80 }}>
+              <div className="loading-ring absolute inset-0 rounded-full" style={{ width: 80, height: 80 }} />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Cpu size={28} style={{ color: 'var(--cyber-cyan)' }} />
+              </div>
+            </div>
+            <p className="font-mono-cyber text-sm mb-1" style={{ color: 'var(--cyber-cyan)' }}>
+              INITIALIZING SYSTEM
+            </p>
+            <p className="font-mono-cyber text-xs" style={{ color: 'rgba(0,212,255,0.4)' }}>
+              Loading portfolio data...
+            </p>
+          </>
+        ) : (
+          /* ── ENTER SITE STATE ── */
+          <>
+            <p className="font-mono-cyber text-xs mb-6 tracking-widest"
+              style={{ color: 'rgba(0,212,255,0.5)' }}>
+              {'// SYSTEM READY'}
+            </p>
+            <h1 className="font-orbitron font-black text-white mb-2 leading-none"
+              style={{ fontSize: 'clamp(2rem, 6vw, 4rem)' }}>
+              FIKRAL ANDHIKA
+            </h1>
+            <h1 className="font-orbitron font-black mb-8 leading-none"
+              style={{ fontSize: 'clamp(2rem, 6vw, 4rem)', background: 'linear-gradient(135deg, var(--cyber-cyan), var(--cyber-neon))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+              RAMADHANI
+            </h1>
+            <div className="cyber-divider mb-10 mx-auto" style={{ maxWidth: 200 }} />
+            <button onClick={handleEnterSite}
+              className="btn-cyber-primary flex items-center gap-3 mx-auto text-sm px-10 py-4">
+              <Volume2 size={18} />
+              ENTER SITE
+            </button>
+            <p className="font-mono-cyber text-xs mt-5"
+              style={{ color: 'rgba(200,214,229,0.2)' }}>
+              click to enter with music
+            </p>
+          </>
+        )}
       </div>
     </div>
   );
@@ -557,53 +593,6 @@ export default function App() {
 
       {/* Audio player */}
       <audio ref={audioRef} src="/music/moodgame.mp3" loop preload="auto" />
-
-      {/* ── ENTER SITE OVERLAY ── */}
-      {showEnterSite && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center"
-          style={{ background: 'rgba(2,4,8,0.97)', backdropFilter: 'blur(8px)' }}>
-
-          {/* grid bg */}
-          <div className="absolute inset-0 bg-cyber-grid pointer-events-none" style={{ backgroundSize: '40px 40px', opacity: 0.4 }} />
-
-          {/* glow orb */}
-          <div className="absolute inset-0 pointer-events-none"
-            style={{ background: 'radial-gradient(ellipse at center, rgba(0,212,255,0.06) 0%, transparent 60%)' }} />
-
-          <div className="relative text-center px-8">
-            {/* top label */}
-            <p className="font-mono-cyber text-xs mb-6 tracking-widest"
-              style={{ color: 'rgba(0,212,255,0.5)' }}>
-              {'// INITIALIZING PORTFOLIO_v1.0'}
-            </p>
-
-            {/* name */}
-            <h1 className="font-orbitron font-black text-white mb-2 leading-none"
-              style={{ fontSize: 'clamp(2rem, 6vw, 4rem)' }}>
-              FIKRAL ANDHIKA
-            </h1>
-            <h1 className="font-orbitron font-black mb-8 leading-none"
-              style={{ fontSize: 'clamp(2rem, 6vw, 4rem)', background: 'linear-gradient(135deg, var(--cyber-cyan), var(--cyber-neon))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-              RAMADHANI
-            </h1>
-
-            <div className="cyber-divider mb-10 mx-auto" style={{ maxWidth: 200 }} />
-
-            {/* enter button */}
-            <button onClick={handleEnterSite}
-              className="btn-cyber-primary flex items-center gap-3 mx-auto text-sm px-10 py-4"
-              style={{ fontSize: '0.85rem' }}>
-              <Volume2 size={18} />
-              ENTER SITE
-            </button>
-
-            <p className="font-mono-cyber text-xs mt-6"
-              style={{ color: 'rgba(200,214,229,0.2)' }}>
-              click to enter with music
-            </p>
-          </div>
-        </div>
-      )}
 
       {/* Grid background */}
       <div className="fixed inset-0 bg-cyber-grid pointer-events-none" style={{ backgroundSize: '40px 40px', zIndex: 0 }} />
