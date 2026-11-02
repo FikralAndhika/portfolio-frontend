@@ -743,21 +743,18 @@ export default function App() {
 
             <div className="relative grid md:grid-cols-3 items-center h-full" style={{ minHeight: 560 }}>
 
-              {/* ── LEFT: name + bio1 ── */}
+              {/* ── LEFT: name + button only ── */}
               <Reveal direction="left" className="p-8 md:p-10 self-center">
                 <p className="font-mono-cyber text-sm mb-2" style={{ color: 'var(--cyber-cyan)' }}>
                   Hi, I'm
                 </p>
-                <h2 className="font-orbitron font-black text-white mb-6 leading-tight"
+                <h2 className="font-orbitron font-black text-white mb-8 leading-tight"
                   style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)' }}>
                   Fikral Andhika<br />
                   <span style={{ background: 'linear-gradient(135deg, var(--cyber-cyan), var(--cyber-neon))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                     Ramadhani
                   </span>
                 </h2>
-                <p className="text-gray-400 text-sm leading-relaxed mb-6" style={{ maxWidth: 260 }}>
-                  {aboutData.bio1}
-                </p>
                 <button className="btn-cyber-primary text-xs flex items-center gap-2"
                   onClick={() => scrollTo('projects')}>
                   <Code2 size={14} /> VIEW PROJECTS
@@ -808,31 +805,37 @@ export default function App() {
                 )}
               </Reveal>
 
-              {/* ── RIGHT: bio2 + stats ── */}
+              {/* ── RIGHT: bio only ── */}
               <Reveal direction="right" className="p-8 md:p-10 self-center">
-                <p className="text-gray-400 text-sm leading-relaxed mb-8" style={{ maxWidth: 260 }}>
-                  {aboutData.bio2}
+                <p className="section-label mb-3">BIO.TXT</p>
+                <div className="w-8 h-px mb-4" style={{ background: 'var(--cyber-cyan)' }} />
+                <p className="text-gray-400 text-sm leading-relaxed mb-4" style={{ maxWidth: 280 }}>
+                  {aboutData.bio1}
                 </p>
-
-                <div className="space-y-4">
-                  {aboutData.stats.map((stat, i) => (
-                    <div key={i} className="flex items-center gap-4">
-                      <span className="font-orbitron font-bold text-xl"
-                        style={{ color: i % 2 === 0 ? 'var(--cyber-cyan)' : 'var(--cyber-neon)', minWidth: 52 }}>
-                        {stat.value}
-                      </span>
-                      <div>
-                        <div className="w-16 h-px mb-1" style={{ background: i % 2 === 0 ? 'rgba(0,212,255,0.3)' : 'rgba(0,255,136,0.3)' }} />
-                        <span className="font-mono-cyber text-xs" style={{ color: 'rgba(200,214,229,0.4)' }}>
-                          {stat.label}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                {aboutData.bio2 && (
+                  <p className="text-gray-500 text-sm leading-relaxed" style={{ maxWidth: 280 }}>
+                    {aboutData.bio2}
+                  </p>
+                )}
               </Reveal>
             </div>
-          </div>
+
+            {/* ── BOTTOM: 4 stats berjajar ── */}
+            <Reveal stagger className="grid grid-cols-2 md:grid-cols-4"
+              style={{ borderTop: '1px solid rgba(0,212,255,0.08)' }}>
+              {aboutData.stats.map((stat, i) => (
+                <div key={i} className="flex flex-col items-center justify-center py-6 px-4"
+                  style={{ borderRight: i < 3 ? '1px solid rgba(0,212,255,0.08)' : 'none' }}>
+                  <span className="font-orbitron font-bold text-3xl mb-1"
+                    style={{ color: i % 2 === 0 ? 'var(--cyber-cyan)' : 'var(--cyber-neon)' }}>
+                    {stat.value}
+                  </span>
+                  <span className="font-mono-cyber text-xs text-center" style={{ color: 'rgba(200,214,229,0.35)' }}>
+                    {stat.label}
+                  </span>
+                </div>
+              ))}
+            </Reveal>
         </section>
 
         {/* ── SKILLS ── */}
