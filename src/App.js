@@ -836,6 +836,7 @@ export default function App() {
                 </div>
               ))}
             </Reveal>
+          </div>
         </section>
 
         {/* ── SKILLS ── */}
